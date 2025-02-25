@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
-class ExpenseController extends GetxController {
+class IncomeController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -11,25 +11,29 @@ class ExpenseController extends GetxController {
   final descriptionController = TextEditingController();
   var selectedCategory = ''.obs;
   final formKey = GlobalKey<FormState>();
+  final List<String> categories = [
+    'Salary',
+    'Business',
+    'Gift',
+    'Loan',
+    'Sales',
+    'Other'
+  ];
 
-  final categories = ['Food', 'Transport', 'Entertainment', 'Other'];
   var errorMsg = Rx<String?>(null);
-  var isLoading = false.obs; // 🔹 Add this line
-
-  Future<void> addExpense() async {
-    if (!formKey.currentState!.validate()) return;
-
-    String? userId = _auth.currentUser?.uid;
+  var isLoading = false.obs; // 🔹 Added isLoading
+  Future<void> addIncome() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      errorMsg.value = 'User not logged in.';
+      Get.snackbar('Error', 'User not logged in.');
       return;
     }
 
-    isLoading.value = true; // 🔹 Start loading
+    isLoading.value = true;
 
     try {
       // Create a separate "incomes" collection
-      await _firestore.collection('expenses').add({
+      await _firestore.collection('incomes').add({
         'userId': userId, // To identify which user this income belongs to
         'amount': double.parse(amountController.text.trim()),
         'description': descriptionController.text.trim(),
@@ -37,7 +41,7 @@ class ExpenseController extends GetxController {
         'date': Timestamp.now(),
       });
 
-      Get.snackbar('Success', 'Expense added successfully!');
+      Get.snackbar('Success', 'Income added successfully!');
 
       // Clear all fields after successful submission
       amountController.clear();

@@ -1,8 +1,7 @@
 import 'dart:math';
 import 'package:get/get.dart';
 import 'package:spendly/models/myuser.dart';
-import 'package:spendly/res/routes/routes_name.dart';
-import 'package:spendly/screens/expense/add_expense.dart';
+import 'package:spendly/screens/add_income_and_expense/income_expense_home.dart';
 import 'package:spendly/screens/home/views/main_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            Get.to(AddExpense(), arguments: myUser);
+            Get.to(IncomeExpenseHome(), arguments: myUser);
           },
           shape: const CircleBorder(),
           child: Container(

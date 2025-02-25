@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
 import 'package:spendly/res/routes/routes_name.dart';
+import 'package:spendly/screens/add_income_and_expense/add_expense.dart';
+import 'package:spendly/screens/add_income_and_expense/add_income.dart';
 import 'package:spendly/screens/auth/sign_in_screen.dart';
 import 'package:spendly/screens/auth/sign_up_screen.dart';
 import 'package:spendly/screens/auth/welcome_screen.dart';
-import 'package:spendly/screens/expense/add_expense.dart';
 import 'package:spendly/screens/home/views/home_screen.dart';
 
 class AppRoutes {
@@ -36,6 +37,11 @@ class AppRoutes {
         GetPage(
             name: RoutesName.expenseView,
             page: () => AddExpense(),
+            transitionDuration: const Duration(milliseconds: 250),
+            transition: Transition.leftToRightWithFade),
+             GetPage(
+            name: RoutesName.incomeView,
+            page: () => AddIncome(),
             transitionDuration: const Duration(milliseconds: 250),
             transition: Transition.leftToRightWithFade)
       ];

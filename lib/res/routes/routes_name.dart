@@ -5,4 +5,5 @@ class RoutesName {
   static const String signupView = '/signup_view';
   static const String homeView = '/home_view';
   static const String expenseView = '/expense_view';
+  static const String incomeView = '/income_view';
 }
