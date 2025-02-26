@@ -1,12 +1,18 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:spendly/controllers/expenseController.dart';
+import 'package:spendly/controllers/incomeController.dart';
 import 'package:spendly/models/myuser.dart';
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({super.key, required this.myUser});
+  MainScreen({super.key, required this.myUser});
   final MyUser myUser;
+
+  final ExpenseController expenseController = Get.put(ExpenseController());
+  final IncomeController incomeController = Get.put(IncomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -98,13 +104,21 @@ class MainScreen extends StatelessWidget {
                         fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    '\$ 4800.00',
-                    style: TextStyle(
-                        fontSize: 40,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
+                  Obx(() {
+                    double totalIncome = incomeController.categoryTotals.values
+                        .fold(0, (sum, value) => sum + value);
+                    double totalExpense = expenseController
+                        .categoryTotals.values
+                        .fold(0, (sum, value) => sum + value);
+                    double totalAmount = totalIncome - totalExpense;
+                    return Text(
+                      '\$ ${totalAmount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                          fontSize: 40,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    );
+                  }),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 20),
@@ -121,13 +135,13 @@ class MainScreen extends StatelessWidget {
                                   shape: BoxShape.circle),
                               child: const Center(
                                   child: Icon(
-                                CupertinoIcons.arrow_down,
+                                CupertinoIcons.arrow_up,
                                 size: 12,
                                 color: Colors.greenAccent,
                               )),
                             ),
                             const SizedBox(width: 8),
-                            const Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
@@ -137,13 +151,18 @@ class MainScreen extends StatelessWidget {
                                       color: Colors.white,
                                       fontWeight: FontWeight.w400),
                                 ),
-                                Text(
-                                  '€ 2500.00',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                                ),
+                                Obx(() {
+                                  double totalIncome = incomeController
+                                      .categoryTotals.values
+                                      .fold(0, (sum, value) => sum + value);
+                                  return Text(
+                                    '\$ ${totalIncome.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600),
+                                  );
+                                }),
                               ],
                             )
                           ],
@@ -164,7 +183,7 @@ class MainScreen extends StatelessWidget {
                               )),
                             ),
                             const SizedBox(width: 8),
-                            const Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
@@ -174,13 +193,18 @@ class MainScreen extends StatelessWidget {
                                       color: Colors.white,
                                       fontWeight: FontWeight.w400),
                                 ),
-                                Text(
-                                  '€ 800.00',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                                ),
+                                Obx(() {
+                                  double totalExpense = expenseController
+                                      .categoryTotals.values
+                                      .fold(0, (sum, value) => sum + value);
+                                  return Text(
+                                    '\$ ${totalExpense.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600),
+                                  );
+                                }),
                               ],
                             )
                           ],
@@ -215,86 +239,130 @@ class MainScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            // Expanded(
-            //   child: ListView.builder(
-            //       itemCount: expenses.length,
-            //       itemBuilder: (context, int i) {
-            //         print('data ${expenses[i].category.icon}');
-            //         return Padding(
-            //           padding: const EdgeInsets.only(bottom: 10.0),
-            //           child: Container(
-            //             decoration: BoxDecoration(
-            //                 color: Colors.white,
-            //                 borderRadius: BorderRadius.circular(12)),
-            //             child: Padding(
-            //               padding: const EdgeInsets.all(10.0),
-            //               child: Row(
-            //                 mainAxisAlignment:
-            //                     MainAxisAlignment.spaceBetween,
-            //                 children: [
-            //                   Row(
-            //                     children: [
-            //                       Stack(
-            //                         alignment: Alignment.center,
-            //                         children: [
-            //                           Container(
-            //                             width: 50,
-            //                             height: 50,
-            //                             decoration: BoxDecoration(
-            //                                 color: Color(
-            //                                     expenses[i].category.color),
-            //                                 shape: BoxShape.circle),
-            //                           ),
-            //                           Image.asset(
-            //                             'assets/icons/${expenses[i].category.icon}.png',
-            //                             scale: -2,
-            //                             color: Colors.white,
-            //                           )
-            //                         ],
-            //                       ),
-            //                       const SizedBox(width: 12),
-            //                       Text(
-            //                         expenses[i].category.name,
-            //                         style: TextStyle(
-            //                             fontSize: 14,
-            //                             color: Theme.of(context)
-            //                                 .colorScheme
-            //                                 .onBackground,
-            //                             fontWeight: FontWeight.w500),
-            //                       ),
-            //                     ],
-            //                   ),
-            //                   Column(
-            //                     crossAxisAlignment: CrossAxisAlignment.end,
-            //                     children: [
-            //                       Text(
-            //                         "\$${expenses[i].amount}.00",
-            //                         style: TextStyle(
-            //                             fontSize: 14,
-            //                             color: Theme.of(context)
-            //                                 .colorScheme
-            //                                 .onBackground,
-            //                             fontWeight: FontWeight.w400),
-            //                       ),
-            //                       Text(
-            //                         DateFormat('dd/MM/yyyy')
-            //                             .format(expenses[i].date),
-            //                         style: TextStyle(
-            //                             fontSize: 14,
-            //                             color: Theme.of(context)
-            //                                 .colorScheme
-            //                                 .outline,
-            //                             fontWeight: FontWeight.w400),
-            //                       ),
-            //                     ],
-            //                   )
-            //                 ],
-            //               ),
-            //             ),
-            //           ),
-            //         );
-            //       }),
-            // )
+            Obx(() {
+              final expenses = expenseController.expensesList;
+
+              // Group expenses by category and find the latest date
+              Map<String, double> categoryTotals = {};
+              Map<String, DateTime> latestDatePerCategory = {};
+
+              for (var expense in expenses) {
+                String category = expense['category'];
+                double amount = expense['amount'];
+                DateTime date = expense['date'];
+
+                // Sum amounts per category
+                categoryTotals[category] =
+                    (categoryTotals[category] ?? 0) + amount;
+
+                // Track the latest date per category
+                if (latestDatePerCategory[category] == null ||
+                    date.isAfter(latestDatePerCategory[category]!)) {
+                  latestDatePerCategory[category] = date;
+                }
+              }
+
+              return Expanded(
+                child: ListView.builder(
+                  itemCount: categoryTotals.length,
+                  itemBuilder: (context, int i) {
+                    String category = categoryTotals.keys.elementAt(i);
+                    double totalAmount = categoryTotals[category] ?? 0;
+                    DateTime? latestDate = latestDatePerCategory[category];
+
+                    // Fetch category icon and color from expenseCategories
+                    var categoryData =
+                        expenseController.expenseCategories.firstWhere(
+                      (element) => element['name'] == category,
+                      orElse: () => {
+                        'icon': Icons.category,
+                        'color': Colors.grey
+                      }, // Default values
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: categoryData[
+                                              'color'], // Get color from controller
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Icon(
+                                          categoryData[
+                                              'icon'], // Get icon from controller
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    category,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "\$${totalAmount.toStringAsFixed(2)}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('dd/MM/yyyy')
+                                        .format(latestDate!),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color:
+                                          Theme.of(context).colorScheme.outline,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            })
           ],
         ),
       ),

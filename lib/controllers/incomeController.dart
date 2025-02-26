@@ -22,6 +22,42 @@ class IncomeController extends GetxController {
 
   var errorMsg = Rx<String?>(null);
   var isLoading = false.obs; // 🔹 Added isLoading
+
+  var categoryTotals =
+      <String, double>{}.obs; // Observable map for category totals
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchIncomeTotals();
+  }
+
+  void fetchIncomeTotals() {
+    String? userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    _firestore
+        .collection('incomes')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .listen((snapshot) {
+      Map<String, double> tempTotals = {};
+
+      for (var doc in snapshot.docs) {
+        String category = doc['category'];
+        double amount = (doc['amount'] as num).toDouble();
+
+        if (tempTotals.containsKey(category)) {
+          tempTotals[category] = tempTotals[category]! + amount;
+        } else {
+          tempTotals[category] = amount;
+        }
+      }
+
+      categoryTotals.value = tempTotals; // Update the observable map
+    });
+  }
+
   Future<void> addIncome() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {

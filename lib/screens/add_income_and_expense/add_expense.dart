@@ -57,32 +57,43 @@ class AddExpense extends StatelessWidget {
               const SizedBox(height: 10),
 
               // Category Dropdown
-              Obx(() => DropdownButtonFormField<String>(
-                    value: controller.selectedCategory.value.isEmpty
-                        ? null
-                        : controller.selectedCategory.value,
-                    decoration: InputDecoration(
-                      hintText: 'Select a category',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+              Obx(() {
+                return DropdownButtonFormField<String>(
+                  value: controller.selectedCategory.value.isEmpty
+                      ? null
+                      : controller.selectedCategory.value,
+                  decoration: InputDecoration(
+                    hintText: 'Select a category',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    items: controller.categories.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      controller.selectedCategory.value = value ?? '';
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a category';
-                      }
-                      return null;
-                    },
-                  )),
+                  ),
+                  items: controller.expenseCategories
+                      .map<DropdownMenuItem<String>>((category) {
+                    return DropdownMenuItem<String>(
+                      value: category['name']
+                          as String, // Explicitly cast to String
+                      child: Row(
+                        children: [
+                          Icon(category['icon'] as IconData,
+                              color: category['color'] as Color),
+                          SizedBox(width: 10),
+                          Text(category['name'] as String),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    controller.selectedCategory.value = value ?? '';
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a category';
+                    }
+                    return null;
+                  },
+                );
+              }),
 
               const SizedBox(height: 20),
 
