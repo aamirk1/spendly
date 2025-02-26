@@ -11,48 +11,49 @@ class ExpenseController extends GetxController {
   final amountController = TextEditingController();
   final descriptionController = TextEditingController();
   var selectedCategory = ''.obs;
-  final formKey = GlobalKey<FormState>();final RxList<Map<String, dynamic>> expenseCategories = <Map<String, dynamic>>[
-  {
-    'name': 'Food',
-    'icon': CupertinoIcons.cart_fill,
-    'color': Colors.orangeAccent,
-  },
-  {
-    'name': 'Transport',
-    'icon': CupertinoIcons.car_detailed,
-    'color': Colors.blueAccent,
-  },
-  {
-    'name': 'Entertainment',
-    'icon': CupertinoIcons.tv_fill,
-    'color': Colors.purpleAccent,
-  },
-  {
-    'name': 'Shopping',
-    'icon': CupertinoIcons.bag_fill,
-    'color': Colors.greenAccent,
-  },
-  {
-    'name': 'Health',
-    'icon': CupertinoIcons.heart_fill,
-    'color': Colors.redAccent,
-  },
-  {
-    'name': 'Education',
-    'icon': CupertinoIcons.book_fill,
-    'color': Colors.tealAccent,
-  },
-  {
-    'name': 'Bills',
-    'icon': CupertinoIcons.doc_text_fill,
-    'color': Colors.indigoAccent,
-  },
-  {
-    'name': 'Other',
-    'icon': CupertinoIcons.question_circle_fill,
-    'color': Colors.grey,
-  },
-].obs;
+  final formKey = GlobalKey<FormState>();
+  final RxList<Map<String, dynamic>> expenseCategories = <Map<String, dynamic>>[
+    {
+      'name': 'Food',
+      'icon': CupertinoIcons.cart_fill,
+      'color': Colors.orangeAccent,
+    },
+    {
+      'name': 'Transport',
+      'icon': CupertinoIcons.car_detailed,
+      'color': Colors.blueAccent,
+    },
+    {
+      'name': 'Entertainment',
+      'icon': CupertinoIcons.tv_fill,
+      'color': Colors.purpleAccent,
+    },
+    {
+      'name': 'Shopping',
+      'icon': CupertinoIcons.bag_fill,
+      'color': Colors.greenAccent,
+    },
+    {
+      'name': 'Health',
+      'icon': CupertinoIcons.heart_fill,
+      'color': Colors.redAccent,
+    },
+    {
+      'name': 'Education',
+      'icon': CupertinoIcons.book_fill,
+      'color': Colors.tealAccent,
+    },
+    {
+      'name': 'Bills',
+      'icon': CupertinoIcons.doc_text_fill,
+      'color': Colors.indigoAccent,
+    },
+    {
+      'name': 'Other',
+      'icon': CupertinoIcons.question_circle_fill,
+      'color': Colors.grey,
+    },
+  ].obs;
 
   var errorMsg = Rx<String?>(null);
   var isLoading = false.obs; // 🔹 Add this line
@@ -83,6 +84,7 @@ class ExpenseController extends GetxController {
 
       for (var doc in snapshot.docs) {
         String category = doc['category'];
+        String description = doc['description'];
         double amount = (doc['amount'] as num).toDouble();
         DateTime date =
             (doc['date'] as Timestamp).toDate(); // Convert timestamp
@@ -92,6 +94,7 @@ class ExpenseController extends GetxController {
 
         // Store expense details as a map
         tempExpenses.add({
+          'description': description,
           'category': category,
           'amount': amount,
           'date': date,
@@ -135,6 +138,24 @@ class ExpenseController extends GetxController {
       errorMsg.value = 'Failed to add income: $e';
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void updateExpense(String docId, Map<String, dynamic> updatedData) async {
+    try {
+      await _firestore.collection('expenses').doc(docId).update(updatedData);
+      Get.snackbar('Success', 'Expense updated successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update expense: $e');
+    }
+  }
+
+  void deleteExpense(String docId) async {
+    try {
+      await _firestore.collection('expenses').doc(docId).delete();
+      Get.snackbar('Deleted', 'Expense removed successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to delete expense: $e');
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class IncomeController extends GetxController {
@@ -11,20 +12,45 @@ class IncomeController extends GetxController {
   final descriptionController = TextEditingController();
   var selectedCategory = ''.obs;
   final formKey = GlobalKey<FormState>();
-  final List<String> categories = [
-    'Salary',
-    'Business',
-    'Gift',
-    'Loan',
-    'Sales',
-    'Other'
-  ];
+
+  final RxList<Map<String, dynamic>> incomeCategories = <Map<String, dynamic>>[
+    {
+      'name': 'Salary',
+      'icon': CupertinoIcons.money_dollar_circle_fill,
+      'color': Colors.greenAccent,
+    },
+    {
+      'name': 'Business',
+      'icon': CupertinoIcons.briefcase_fill,
+      'color': Colors.blueAccent,
+    },
+    {
+      'name': 'Gift',
+      'icon': CupertinoIcons.gift_fill,
+      'color': Colors.purpleAccent,
+    },
+    {
+      'name': 'Loan',
+      'icon': CupertinoIcons.creditcard_fill,
+      'color': Colors.orangeAccent,
+    },
+    {
+      'name': 'Sales',
+      'icon': CupertinoIcons.cart_fill,
+      'color': Colors.tealAccent,
+    },
+    {
+      'name': 'Other',
+      'icon': CupertinoIcons.question_circle_fill,
+      'color': Colors.grey,
+    },
+  ].obs;
 
   var errorMsg = Rx<String?>(null);
-  var isLoading = false.obs; // 🔹 Added isLoading
+  var isLoading = false.obs;
 
-  var categoryTotals =
-      <String, double>{}.obs; // Observable map for category totals
+  var categoryTotals = <String, double>{}.obs;
+  var incomeList = <Map<String, dynamic>>[].obs; // ✅ Income list for UI
 
   @override
   void onInit() {
@@ -42,35 +68,43 @@ class IncomeController extends GetxController {
         .snapshots()
         .listen((snapshot) {
       Map<String, double> tempTotals = {};
+      List<Map<String, dynamic>> tempIncomes = [];
 
       for (var doc in snapshot.docs) {
         String category = doc['category'];
+        String description = doc['description'];
         double amount = (doc['amount'] as num).toDouble();
+        DateTime date = (doc['date'] as Timestamp).toDate();
 
-        if (tempTotals.containsKey(category)) {
-          tempTotals[category] = tempTotals[category]! + amount;
-        } else {
-          tempTotals[category] = amount;
-        }
+        tempTotals[category] = (tempTotals[category] ?? 0) + amount;
+
+        tempIncomes.add({
+          'description': description,
+          'category': category,
+          'amount': amount,
+          'date': date,
+        });
       }
 
-      categoryTotals.value = tempTotals; // Update the observable map
+      categoryTotals.value = tempTotals;
+      incomeList.value = tempIncomes;
     });
   }
 
   Future<void> addIncome() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (!formKey.currentState!.validate()) return;
+
+    String? userId = _auth.currentUser?.uid;
     if (userId == null) {
-      Get.snackbar('Error', 'User not logged in.');
+      errorMsg.value = 'User not logged in.';
       return;
     }
 
     isLoading.value = true;
 
     try {
-      // Create a separate "incomes" collection
       await _firestore.collection('incomes').add({
-        'userId': userId, // To identify which user this income belongs to
+        'userId': userId,
         'amount': double.parse(amountController.text.trim()),
         'description': descriptionController.text.trim(),
         'category': selectedCategory.value,
@@ -79,7 +113,6 @@ class IncomeController extends GetxController {
 
       Get.snackbar('Success', 'Income added successfully!');
 
-      // Clear all fields after successful submission
       amountController.clear();
       descriptionController.clear();
       selectedCategory.value = '';
@@ -88,6 +121,24 @@ class IncomeController extends GetxController {
       errorMsg.value = 'Failed to add income: $e';
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void updateIncome(String docId, Map<String, dynamic> updatedData) async {
+    try {
+      await _firestore.collection('incomes').doc(docId).update(updatedData);
+      Get.snackbar('Success', 'Income updated successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update income: $e');
+    }
+  }
+
+  void deleteIncome(String docId) async {
+    try {
+      await _firestore.collection('incomes').doc(docId).delete();
+      Get.snackbar('Deleted', 'Income removed successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to delete income: $e');
     }
   }
 }

@@ -6,4 +6,6 @@ class RoutesName {
   static const String homeView = '/home_view';
   static const String expenseView = '/expense_view';
   static const String incomeView = '/income_view';
+  static const String viewAllExpenses = '/view_all_expenses';
+  static const String viewAllIncome = '/view_all_income';
 }

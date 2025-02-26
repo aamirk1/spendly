@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:spendly/controllers/expenseController.dart';
 import 'package:spendly/controllers/incomeController.dart';
 import 'package:spendly/models/myuser.dart';
+import 'package:spendly/res/routes/routes_name.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({super.key, required this.myUser});
@@ -226,15 +227,40 @@ class MainScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onBackground,
                       fontWeight: FontWeight.bold),
                 ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    'View All',
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.outline,
-                        fontWeight: FontWeight.w400),
-                  ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed(RoutesName.viewAllIncome);
+                      },
+                      child: Text(
+                        'All Income',
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.outline,
+                            fontWeight: FontWeight.w400),
+                      ),
+                    ),
+                    Text(
+                      ' / ',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.outline,
+                          fontWeight: FontWeight.w400),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed(RoutesName.viewAllExpenses);
+                      },
+                      child: Text(
+                        'All Expenses',
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.outline,
+                            fontWeight: FontWeight.w400),
+                      ),
+                    ),
+                  ],
                 )
               ],
             ),
