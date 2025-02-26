@@ -62,7 +62,7 @@ class MainScreen extends StatelessWidget {
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color:
-                                  Theme.of(context).colorScheme.onBackground),
+                                  Theme.of(context).colorScheme.onSurface),
                         )
                       ],
                     ),
@@ -224,7 +224,7 @@ class MainScreen extends StatelessWidget {
                   'Transactions',
                   style: TextStyle(
                       fontSize: 16,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold),
                 ),
                 Row(
@@ -349,7 +349,7 @@ class MainScreen extends StatelessWidget {
                                       fontSize: 14,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onBackground,
+                                          .onSurface,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -364,7 +364,7 @@ class MainScreen extends StatelessWidget {
                                       fontSize: 14,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onBackground,
+                                          .onSurface,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),

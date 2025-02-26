@@ -26,7 +26,7 @@ class _IncomeExpenseHomeState extends State<IncomeExpenseHome>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SingleChildScrollView(
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
@@ -44,10 +44,10 @@ class _IncomeExpenseHomeState extends State<IncomeExpenseHome>
                           controller: tabController,
                           unselectedLabelColor: Theme.of(context)
                               .colorScheme
-                              .onBackground
+                              .onSurface
                               .withOpacity(0.5),
                           labelColor:
-                              Theme.of(context).colorScheme.onBackground,
+                              Theme.of(context).colorScheme.onSurface,
                           tabs: const [
                             Padding(
                               padding: EdgeInsets.all(10.0),

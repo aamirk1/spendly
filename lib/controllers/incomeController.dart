@@ -71,14 +71,18 @@ class IncomeController extends GetxController {
       List<Map<String, dynamic>> tempIncomes = [];
 
       for (var doc in snapshot.docs) {
-        String category = doc['category'];
-        String description = doc['description'];
-        double amount = (doc['amount'] as num).toDouble();
-        DateTime date = (doc['date'] as Timestamp).toDate();
+        String id = doc.id; // 🔥 Get Firestore's auto-generated ID
+        Map<String, dynamic> data = doc.data();
+
+        String category = data['category'] ?? "Unknown";
+        String description = data['description'] ?? "";
+        double amount = (data['amount'] as num).toDouble();
+        DateTime date = (data['date'] as Timestamp).toDate();
 
         tempTotals[category] = (tempTotals[category] ?? 0) + amount;
 
         tempIncomes.add({
+          'id': id, // ✅ Ensure ID is correctly stored
           'description': description,
           'category': category,
           'amount': amount,
@@ -92,18 +96,17 @@ class IncomeController extends GetxController {
   }
 
   Future<void> addIncome() async {
-    if (!formKey.currentState!.validate()) return;
-
-    String? userId = _auth.currentUser?.uid;
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      errorMsg.value = 'User not logged in.';
+      Get.snackbar('Error', 'User not logged in.');
       return;
     }
 
     isLoading.value = true;
 
     try {
-      await _firestore.collection('incomes').add({
+      // Generate document reference
+      DocumentReference incomeRef = await _firestore.collection('incomes').add({
         'userId': userId,
         'amount': double.parse(amountController.text.trim()),
         'description': descriptionController.text.trim(),
@@ -111,14 +114,17 @@ class IncomeController extends GetxController {
         'date': Timestamp.now(),
       });
 
+      // Update document with its ID
+      await incomeRef.update({'id': incomeRef.id});
+
       Get.snackbar('Success', 'Income added successfully!');
 
+      // Clear inputs
       amountController.clear();
       descriptionController.clear();
       selectedCategory.value = '';
-      errorMsg.value = null;
     } catch (e) {
-      errorMsg.value = 'Failed to add income: $e';
+      Get.snackbar('Error', 'Failed to add income: $e');
     } finally {
       isLoading.value = false;
     }

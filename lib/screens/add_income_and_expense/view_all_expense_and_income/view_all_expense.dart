@@ -11,7 +11,11 @@ class ViewAllExpense extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("All Expenses")),
+      appBar: AppBar(
+          foregroundColor: Colors.white,
+          backgroundColor: Color(0xFFFF8D6C),
+          automaticallyImplyLeading: false,
+          title: Center(child: const Text("All Expenses"))),
       body: Obx(() {
         final expenses = expenseController.expensesList;
 

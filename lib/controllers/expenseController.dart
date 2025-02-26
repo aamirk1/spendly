@@ -12,57 +12,55 @@ class ExpenseController extends GetxController {
   final descriptionController = TextEditingController();
   var selectedCategory = ''.obs;
   final formKey = GlobalKey<FormState>();
+
   final RxList<Map<String, dynamic>> expenseCategories = <Map<String, dynamic>>[
     {
       'name': 'Food',
       'icon': CupertinoIcons.cart_fill,
-      'color': Colors.orangeAccent,
+      'color': Colors.orangeAccent
     },
     {
       'name': 'Transport',
       'icon': CupertinoIcons.car_detailed,
-      'color': Colors.blueAccent,
+      'color': Colors.blueAccent
     },
     {
       'name': 'Entertainment',
       'icon': CupertinoIcons.tv_fill,
-      'color': Colors.purpleAccent,
+      'color': Colors.purpleAccent
     },
     {
       'name': 'Shopping',
       'icon': CupertinoIcons.bag_fill,
-      'color': Colors.greenAccent,
+      'color': Colors.greenAccent
     },
     {
       'name': 'Health',
       'icon': CupertinoIcons.heart_fill,
-      'color': Colors.redAccent,
+      'color': Colors.redAccent
     },
     {
       'name': 'Education',
       'icon': CupertinoIcons.book_fill,
-      'color': Colors.tealAccent,
+      'color': Colors.tealAccent
     },
     {
       'name': 'Bills',
       'icon': CupertinoIcons.doc_text_fill,
-      'color': Colors.indigoAccent,
+      'color': Colors.indigoAccent
     },
     {
       'name': 'Other',
       'icon': CupertinoIcons.question_circle_fill,
-      'color': Colors.grey,
+      'color': Colors.grey
     },
   ].obs;
 
   var errorMsg = Rx<String?>(null);
-  var isLoading = false.obs; // 🔹 Add this line
+  var isLoading = false.obs;
 
-  var categoryTotals =
-      <String, double>{}.obs; // Observable map for category totals
-
-  var expensesList =
-      <Map<String, dynamic>>[].obs; // List of maps instead of models
+  var categoryTotals = <String, double>{}.obs;
+  var expensesList = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -80,20 +78,21 @@ class ExpenseController extends GetxController {
         .snapshots()
         .listen((snapshot) {
       Map<String, double> tempTotals = {};
-      List<Map<String, dynamic>> tempExpenses = []; // List of maps
+      List<Map<String, dynamic>> tempExpenses = [];
 
       for (var doc in snapshot.docs) {
-        String category = doc['category'];
-        String description = doc['description'];
-        double amount = (doc['amount'] as num).toDouble();
-        DateTime date =
-            (doc['date'] as Timestamp).toDate(); // Convert timestamp
+        String id = doc.id;
+        Map<String, dynamic> data = doc.data();
 
-        // Update category totals
+        String category = data['category'] ?? "Unknown";
+        String description = data['description'] ?? "";
+        double amount = (data['amount'] as num).toDouble();
+        DateTime date = (data['date'] as Timestamp).toDate();
+
         tempTotals[category] = (tempTotals[category] ?? 0) + amount;
 
-        // Store expense details as a map
         tempExpenses.add({
+          'id': id,
           'description': description,
           'category': category,
           'amount': amount,
@@ -102,40 +101,38 @@ class ExpenseController extends GetxController {
       }
 
       categoryTotals.value = tempTotals;
-      expensesList.value = tempExpenses; // Update list without using models
+      expensesList.value = tempExpenses;
     });
   }
 
   Future<void> addExpense() async {
-    if (!formKey.currentState!.validate()) return;
-
-    String? userId = _auth.currentUser?.uid;
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      errorMsg.value = 'User not logged in.';
+      Get.snackbar('Error', 'User not logged in.');
       return;
     }
 
-    isLoading.value = true; // 🔹 Start loading
+    isLoading.value = true;
 
     try {
-      // Create a separate "incomes" collection
-      await _firestore.collection('expenses').add({
-        'userId': userId, // To identify which user this income belongs to
+      DocumentReference expenseRef =
+          await _firestore.collection('expenses').add({
+        'userId': userId,
         'amount': double.parse(amountController.text.trim()),
         'description': descriptionController.text.trim(),
         'category': selectedCategory.value,
         'date': Timestamp.now(),
       });
 
+      await expenseRef.update({'id': expenseRef.id});
+
       Get.snackbar('Success', 'Expense added successfully!');
 
-      // Clear all fields after successful submission
       amountController.clear();
       descriptionController.clear();
       selectedCategory.value = '';
-      errorMsg.value = null;
     } catch (e) {
-      errorMsg.value = 'Failed to add income: $e';
+      Get.snackbar('Error', 'Failed to add expense: $e');
     } finally {
       isLoading.value = false;
     }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +12,11 @@ class ViewAllIncome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("All Incomes")),
+      appBar: AppBar(
+          foregroundColor: Colors.white,
+          backgroundColor: Color(0xFFE064F7),
+          automaticallyImplyLeading: false,
+          title: Center(child: const Text("All Incomes"))),
       body: Obx(() {
         final incomes = incomeController.incomeList;
 
@@ -23,6 +28,10 @@ class ViewAllIncome extends StatelessWidget {
           itemCount: incomes.length,
           itemBuilder: (context, index) {
             var income = incomes[index];
+            // String id = income['id'];
+            // print('income $id');
+            print('income $income');
+
             String category = income['category'];
             String description = income['description'];
             double amount = income['amount'];
@@ -116,6 +125,7 @@ class ViewAllIncome extends StatelessWidget {
           'amount': double.parse(amountController.text.trim()),
           'description': descriptionController.text.trim(),
           'category': selectedCategory,
+          'date': Timestamp.now(),
         });
         Get.back();
       },

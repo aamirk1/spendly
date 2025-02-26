@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -38,44 +39,63 @@ class SignUpController extends GetxController {
   }
 
   Future<void> signUp() async {
-    if (nameController.text.isNotEmpty &&
-        emailController.text.isNotEmpty &&
-        phoneNumberController.text.isNotEmpty &&
-        passwordController.text.isNotEmpty) {
-      signUpRequired.value = true;
+    if (nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        phoneNumberController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      Get.snackbar('Error', 'Please fill all fields',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
-      try {
-        UserCredential userCredential = await _auth
-            .createUserWithEmailAndPassword(
-              email: emailController.text,
-              password: passwordController.text,
-            )
-            .timeout(const Duration(seconds: 10));
-        print('data $userCredential');
-        MyUser myUser = MyUser.empty.copyWith(
-          userId: userCredential.user!.uid,
-          phoneNumber: phoneNumberController.text,
-          email: emailController.text,
-          name: nameController.text,
-        );
+    signUpRequired.value = true;
 
-        await setUserData(myUser);
+    try {
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          )
+          .timeout(const Duration(seconds: 10)); // 🔥 Prevents long waiting
 
-        signUpRequired.value = false;
-        Get.snackbar('Success', 'Account created successfully');
-        Get.toNamed(RoutesName.homeView, arguments: myUser);
-      } on TimeoutException {
-        signUpRequired.value = false;
-        Get.snackbar('Error', 'Network timeout. Please try again.');
-      } on FirebaseAuthException catch (e) {
-        signUpRequired.value = false;
-        Get.snackbar('Error', 'Firebase Error: ${e.message}');
-      } catch (e) {
-        signUpRequired.value = false;
-        Get.snackbar('Error', 'Unexpected Error: $e');
-      }
-    } else {
-      Get.snackbar('Error', 'Please fill all fields');
+      User? user = userCredential.user;
+      if (user == null)
+        throw FirebaseAuthException(code: "user-creation-failed");
+
+      MyUser myUser = MyUser.empty.copyWith(
+        userId: user.uid,
+        phoneNumber: phoneNumberController.text.trim(),
+        email: emailController.text.trim(),
+        name: nameController.text.trim(),
+      );
+
+      await setUserData(myUser);
+
+      signUpRequired.value = false;
+      Get.snackbar('Success', 'Account created successfully',
+          snackPosition: SnackPosition.BOTTOM);
+      Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+    } on FirebaseAuthException catch (e) {
+      signUpRequired.value = false;
+      Get.snackbar('Error', _getFirebaseAuthError(e.code),
+          snackPosition: SnackPosition.BOTTOM);
+    } on FirebaseException catch (e) {
+      signUpRequired.value = false;
+      Get.snackbar('Error', 'Firestore error: ${e.message}',
+          snackPosition: SnackPosition.BOTTOM);
+    } on SocketException {
+      signUpRequired.value = false;
+      Get.snackbar(
+          'Network Error', 'No internet connection. Please check your network.',
+          snackPosition: SnackPosition.BOTTOM);
+    } on TimeoutException {
+      signUpRequired.value = false;
+      Get.snackbar('Timeout', 'Network timeout. Please try again.',
+          snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      signUpRequired.value = false;
+      Get.snackbar('Error', 'Unexpected Error: $e',
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -86,9 +106,39 @@ class SignUpController extends GetxController {
         'name': myUser.name,
         'email': myUser.email,
         'phoneNumber': myUser.phoneNumber,
-      });
+      }).timeout(const Duration(seconds: 10));
+    } on FirebaseException catch (e) {
+      Get.snackbar('Error', 'Failed to save user data: ${e.message}',
+          snackPosition: SnackPosition.BOTTOM);
+    } on SocketException {
+      Get.snackbar(
+          'Network Error', 'No internet connection. Please check your network.',
+          snackPosition: SnackPosition.BOTTOM);
+    } on TimeoutException {
+      Get.snackbar('Timeout', 'Database request timed out. Please try again.',
+          snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to set user data: ${e.toString()}');
+      Get.snackbar('Error', 'Unexpected error while saving user data: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  String _getFirebaseAuthError(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return 'Invalid email format.';
+      case 'weak-password':
+        return 'Password is too weak. Use a stronger password.';
+      case 'email-already-in-use':
+        return 'An account already exists for this email.';
+      case 'operation-not-allowed':
+        return 'Sign-up is currently disabled. Contact support.';
+      case 'user-creation-failed':
+        return 'Failed to create user. Please try again.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      default:
+        return 'Sign-up failed. Please try again.';
     }
   }
 }

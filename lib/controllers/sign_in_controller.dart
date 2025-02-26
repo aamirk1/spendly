@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,51 +28,99 @@ class SignInController extends GetxController {
   }
 
   Future<void> signIn() async {
-    if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
-      signInRequired.value = true;
-      errorMsg.value = null;
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      Get.snackbar("Error", "Please fill in all fields",
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
-      try {
-        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
+    signInRequired.value = true;
+    errorMsg.value = null;
 
-        // Fetch user data from Firestore
-        User? user = userCredential.user;
-        if (user != null) {
-          DocumentSnapshot userDoc =
-              await _firestore.collection('users').doc(user.uid).get();
+    try {
+      UserCredential userCredential = await _auth
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          )
+          .timeout(
+              const Duration(seconds: 10)); // 🔥 Handle slow network requests
 
-          if (userDoc.exists) {
-            Map<String, dynamic> userData =
-                userDoc.data() as Map<String, dynamic>;
+      User? user = userCredential.user;
+      if (user == null) throw FirebaseAuthException(code: "user-not-found");
 
-            MyUser myUser = MyUser.empty.copyWith(
-              userId: userData['userId'] ?? user.uid,
-              name: userData['name'] ?? '',
-              email: userData['email'] ?? '',
-              phoneNumber: userData['phoneNumber'] ?? '',
-            );
+      // Fetch user data from Firestore
+      DocumentSnapshot userDoc = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .timeout(const Duration(seconds: 10));
 
-            signInRequired.value = false;
-            Get.snackbar("Success", "Sign-in successful!",
-                snackPosition: SnackPosition.BOTTOM);
-
-            // Pass user data to home screen
-            Get.offAllNamed(RoutesName.homeView, arguments: myUser);
-          } else {
-            signInRequired.value = false;
-            Get.snackbar("Error", "User data not found.");
-          }
-        }
-      } catch (e) {
-        signInRequired.value = false;
-        errorMsg.value = 'Invalid email or password';
-        Get.snackbar("Error", e.toString());
+      if (!userDoc.exists) {
+        throw FirebaseAuthException(code: "user-data-not-found");
       }
-    } else {
-      Get.snackbar("Error", "Please fill in all fields");
+
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+      MyUser myUser = MyUser.empty.copyWith(
+        userId: userData['userId'] ?? user.uid,
+        name: userData['name'] ?? '',
+        email: userData['email'] ?? '',
+        phoneNumber: userData['phoneNumber'] ?? '',
+      );
+
+      signInRequired.value = false;
+      Get.snackbar("Success", "Sign-in successful!",
+          snackPosition: SnackPosition.BOTTOM);
+
+      // Navigate to home screen with user data
+      Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+    } on FirebaseAuthException catch (e) {
+      signInRequired.value = false;
+      errorMsg.value = _getFirebaseAuthError(e.code);
+      Get.snackbar("Error", errorMsg.value!,
+          snackPosition: SnackPosition.BOTTOM);
+    } on FirebaseException catch (e) {
+      signInRequired.value = false;
+      errorMsg.value = "Firestore error: ${e.message}";
+      Get.snackbar("Error", errorMsg.value!,
+          snackPosition: SnackPosition.BOTTOM);
+    } on SocketException {
+      signInRequired.value = false;
+      errorMsg.value = "No internet connection. Please check your network.";
+      Get.snackbar("Network Error", errorMsg.value!,
+          snackPosition: SnackPosition.BOTTOM);
+    } on TimeoutException {
+      signInRequired.value = false;
+      errorMsg.value = "Request timed out. Please try again later.";
+      Get.snackbar("Timeout", errorMsg.value!,
+          snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      signInRequired.value = false;
+      errorMsg.value = "Unexpected error: $e";
+      Get.snackbar("Error", errorMsg.value!,
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  String _getFirebaseAuthError(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return 'Invalid email format.';
+      case 'user-disabled':
+        return 'User account has been disabled.';
+      case 'user-not-found':
+        return 'No account found for this email.';
+      case 'wrong-password':
+        return 'Incorrect password.';
+      case 'user-data-not-found':
+        return 'User data not found in Firestore.';
+      case 'too-many-requests':
+        return 'Too many failed login attempts. Try again later.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      default:
+        return 'Authentication failed. Please try again.';
     }
   }
 }
