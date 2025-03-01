@@ -8,14 +8,15 @@ import 'package:spendly/screens/auth/sign_in_screen.dart';
 import 'package:spendly/screens/auth/sign_up_screen.dart';
 import 'package:spendly/screens/auth/welcome_screen.dart';
 import 'package:spendly/screens/home/views/home_screen.dart';
+import 'package:spendly/screens/splash_screen.dart';
 
 class AppRoutes {
   static appRoutes() => [
-        // GetPage(
-        //     name: RoutesName.splashScreen,
-        //     page: () => const SplashScreen(),
-        //     transitionDuration: const Duration(milliseconds: 250),
-        //     transition: Transition.leftToRight),
+        GetPage(
+            name: RoutesName.splashScreen,
+            page: () => const SplashScreen(),
+            transitionDuration: const Duration(milliseconds: 250),
+            transition: Transition.leftToRight),
         GetPage(
             name: RoutesName.welcomeView,
             page: () => const WelcomeScreen(),

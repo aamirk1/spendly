@@ -44,6 +44,9 @@ dependencies:
   get: ^4.7.2
   
   firebase_auth: 
+  shared_preferences: 
+  get_storage: ^2.1.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
