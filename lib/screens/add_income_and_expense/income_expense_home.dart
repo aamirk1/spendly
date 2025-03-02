@@ -1,9 +1,6 @@
-import 'dart:ui';
 
 import 'package:spendly/screens/add_income_and_expense/add_expense.dart';
 import 'package:spendly/screens/add_income_and_expense/add_income.dart';
-import 'package:spendly/screens/auth/sign_in_screen.dart';
-import 'package:spendly/screens/auth/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
 class IncomeExpenseHome extends StatefulWidget {

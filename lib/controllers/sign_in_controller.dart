@@ -43,13 +43,11 @@ class SignInController extends GetxController {
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           )
-          .timeout(
-              const Duration(seconds: 10)); // 🔥 Handle slow network requests
+          .timeout(const Duration(seconds: 10));
 
       User? user = userCredential.user;
       if (user == null) throw FirebaseAuthException(code: "user-not-found");
 
-      // Fetch user data from Firestore
       DocumentSnapshot userDoc = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -73,8 +71,14 @@ class SignInController extends GetxController {
       Get.snackbar("Success", "Sign-in successful!",
           snackPosition: SnackPosition.BOTTOM);
 
-      // Navigate to home screen with user data
-      Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+      // 🔥 Check if user has completed setup
+      bool isSetupComplete = userData['isSetupComplete'] ?? false;
+
+      if (isSetupComplete) {
+        Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+      } else {
+        Get.offAllNamed(RoutesName.setupView, arguments: myUser);
+      }
     } on FirebaseAuthException catch (e) {
       signInRequired.value = false;
       errorMsg.value = _getFirebaseAuthError(e.code);

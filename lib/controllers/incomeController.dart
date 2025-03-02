@@ -60,7 +60,6 @@ class IncomeController extends GetxController {
 
   void fetchIncomeTotals() {
     String? userId = _auth.currentUser?.uid;
-    if (userId == null) return;
 
     _firestore
         .collection('incomes')

@@ -56,11 +56,12 @@ class SignUpController extends GetxController {
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           )
-          .timeout(const Duration(seconds: 10)); // 🔥 Prevents long waiting
+          .timeout(const Duration(seconds: 10));
 
       User? user = userCredential.user;
-      if (user == null)
+      if (user == null) {
         throw FirebaseAuthException(code: "user-creation-failed");
+      }
 
       MyUser myUser = MyUser.empty.copyWith(
         userId: user.uid,
@@ -74,7 +75,7 @@ class SignUpController extends GetxController {
       signUpRequired.value = false;
       Get.snackbar('Success', 'Account created successfully',
           snackPosition: SnackPosition.BOTTOM);
-      Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+      Get.offAllNamed(RoutesName.setupView, arguments: myUser);
     } on FirebaseAuthException catch (e) {
       signUpRequired.value = false;
       Get.snackbar('Error', _getFirebaseAuthError(e.code),
@@ -123,6 +124,7 @@ class SignUpController extends GetxController {
     }
   }
 
+  /// **🔥 FIXED: Added missing _getFirebaseAuthError method**
   String _getFirebaseAuthError(String code) {
     switch (code) {
       case 'invalid-email':

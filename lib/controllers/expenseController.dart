@@ -70,7 +70,6 @@ class ExpenseController extends GetxController {
 
   void fetchExpenseTotals() {
     String? userId = _auth.currentUser?.uid;
-    if (userId == null) return;
 
     _firestore
         .collection('expenses')
