@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:spendly/controllers/user_preference/user_preference_view_model.dart';
 import 'package:spendly/models/myuser.dart';
 import 'package:spendly/res/routes/routes_name.dart';
 
@@ -16,6 +17,7 @@ class SignUpController extends GetxController {
   final nameController = TextEditingController();
   final phoneNumberController = TextEditingController();
 
+  final UserPreference _userPreference = UserPreference();
   var obscurePassword = true.obs;
   var signUpRequired = false.obs;
 
@@ -69,7 +71,7 @@ class SignUpController extends GetxController {
         email: emailController.text.trim(),
         name: nameController.text.trim(),
       );
-
+  await _userPreference.saveUser(myUser);
       await setUserData(myUser);
 
       signUpRequired.value = false;
