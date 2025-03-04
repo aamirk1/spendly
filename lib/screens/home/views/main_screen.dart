@@ -7,6 +7,7 @@ import 'package:spendly/controllers/expenseController.dart';
 import 'package:spendly/controllers/incomeController.dart';
 import 'package:spendly/models/myuser.dart';
 import 'package:spendly/res/routes/routes_name.dart';
+import 'package:spendly/screens/add_income_and_expense/categorywise_expense_and%20income/categorywise_view_all_expense.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({super.key, required this.myUser});
@@ -61,8 +62,7 @@ class MainScreen extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color:
-                                  Theme.of(context).colorScheme.onSurface),
+                              color: Theme.of(context).colorScheme.onSurface),
                         )
                       ],
                     ),
@@ -314,49 +314,37 @@ class MainScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Container(
-                                        width: 50,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          color: categoryData[
-                                              'color'], // Get color from controller
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Icon(
-                                          categoryData[
-                                              'icon'], // Get icon from controller
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    category,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                            padding: const EdgeInsets.all(10.0),
+                            child: ListTile(
+                              onTap: () {
+                                Get.to(() => CategorywiseViewAllExpense(),
+                                    arguments: category);
+                              },
+                              contentPadding:
+                                  EdgeInsets.zero, // Removes default padding
+                              leading: CircleAvatar(
+                                radius: 25, // Equivalent to 50x50 Container
+                                backgroundColor:
+                                    categoryData['color'], // Category color
+                                child: Icon(
+                                  categoryData['icon'], // Category icon
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
                               ),
-                              Column(
+                              title: Text(
+                                category,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              trailing: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment
+                                    .center, // Aligns text vertically
                                 children: [
                                   Text(
                                     "\$${totalAmount.toStringAsFixed(2)}",
@@ -379,10 +367,8 @@ class MainScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ],
-                              )
-                            ],
-                          ),
-                        ),
+                              ),
+                            )),
                       ),
                     );
                   },

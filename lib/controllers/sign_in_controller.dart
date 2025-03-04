@@ -7,12 +7,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:spendly/models/myuser.dart';
 import 'package:spendly/res/routes/routes_name.dart';
-import 'package:spendly/controllers/user_preference/user_preference_view_model.dart';
 
 class SignInController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final UserPreference _userPreference = UserPreference();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -69,21 +67,20 @@ class SignInController extends GetxController {
         phoneNumber: userData['phoneNumber'] ?? '',
       );
 
-      // Save user data in SharedPreferences
-      await _userPreference.saveUser(myUser);
-
       signInRequired.value = false;
       Get.snackbar("Success", "Sign-in successful!",
           snackPosition: SnackPosition.BOTTOM);
 
-      // 🔥 Check if user has completed setup
-      bool isSetupComplete = userData['isSetupComplete'] ?? false;
+      Get.offAllNamed(RoutesName.homeView, arguments: myUser);
 
-      if (isSetupComplete) {
-        Get.offAllNamed(RoutesName.homeView, arguments: myUser);
-      } else {
-        Get.offAllNamed(RoutesName.setupView, arguments: myUser);
-      }
+      // 🔥 Check if user has completed setup
+      // bool isSetupComplete = userData['isSetupComplete'] ?? false;
+
+      // if (isSetupComplete) {
+      //   Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+      // } else {
+      //   Get.offAllNamed(RoutesName.setupView, arguments: myUser);
+      // }
     } on FirebaseAuthException catch (e) {
       signInRequired.value = false;
       errorMsg.value = _getFirebaseAuthError(e.code);

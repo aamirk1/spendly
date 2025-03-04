@@ -44,13 +44,14 @@ dependencies:
   get: ^4.7.2
   
   firebase_auth: 
-  google_mlkit_face_detection: 
-  image_picker: ^1.1.2 
-  firebase_storage: 
-  country_picker: 
-  lottie: ^3.3.1 
-  shared_preferences: ^2.5.2
-  google_ml_kit: ^0.19.0
+  # google_mlkit_face_detection: 
+  # image_picker: ^1.1.2 
+  # # firebase_storage: 
+  # country_picker: 
+  lottie:
+  # shared_preferences: ^2.5.2
+  # google_ml_kit: 
+  # shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +73,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icons/
+    - assets/animations/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

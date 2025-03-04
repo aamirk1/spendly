@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spendly/res/routes/routes.dart';
 import 'package:spendly/res/routes/routes_name.dart';
 
@@ -18,14 +18,14 @@ class SplashController extends GetxController {
     if (user == null) {
       Get.offAllNamed(RoutesName.welcomeView);
     } else {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool isSetupComplete = prefs.getBool('isSetupComplete') ?? false;
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // bool isSetupComplete = prefs.getBool('isSetupComplete') ?? false;
 
-      if (isSetupComplete) {
-        Get.offAllNamed(RoutesName.homeView);
-      } else {
-        Get.offAllNamed(RoutesName.setupView);
-      }
+      Get.offAllNamed(RoutesName.homeView);
+      // if (isSetupComplete) {
+      // } else {
+      //   Get.offAllNamed(RoutesName.setupView);
+      // }
     }
   }
 }

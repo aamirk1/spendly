@@ -68,6 +68,55 @@ class ExpenseController extends GetxController {
     fetchExpenseTotals();
   }
 
+  void fetchChartExpenseTotals(String filter) {
+    String? userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    DateTime now = DateTime.now();
+    DateTime startDate;
+
+    if (filter == 'Weekly') {
+      startDate =
+          now.subtract(Duration(days: now.weekday - 1)); // Start of week
+    } else if (filter == 'Monthly') {
+      startDate = DateTime(now.year, now.month, 1); // Start of month
+    } else {
+      startDate = DateTime(now.year, 1, 1); // Start of year
+    }
+
+    // 🔹 Clear previous data to avoid UI flickering
+    categoryTotals.clear();
+
+    _firestore
+        .collection('expenses')
+        .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .snapshots()
+        .listen((snapshot) {
+      Map<String, double> tempTotals = {};
+
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data();
+
+        String category = data['category'] ?? "Unknown";
+        double amount = (data['amount'] as num).toDouble();
+
+        // 🔹 Convert Firestore Timestamp to DateTime for consistency
+        DateTime expenseDate = (data['date'] as Timestamp).toDate();
+
+        // 🔹 Ensure data falls within the correct date range
+        if (expenseDate.isAfter(startDate) ||
+            expenseDate.isAtSameMomentAs(startDate)) {
+          tempTotals[category] = (tempTotals[category] ?? 0) + amount;
+        }
+      }
+
+      categoryTotals.assignAll(tempTotals); // ✅ Assign new data
+      categoryTotals.refresh(); // ✅ Ensure UI updates
+      update(); // ✅ Notify GetX to rebuild UI
+    });
+  }
+
   void fetchExpenseTotals() {
     String? userId = _auth.currentUser?.uid;
 

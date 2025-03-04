@@ -1,62 +1,138 @@
-import 'dart:math';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:spendly/controllers/expenseController.dart';
+import 'dart:math';
 
 class MyChart extends StatefulWidget {
   const MyChart({super.key});
 
   @override
-  State<MyChart> createState() => _MyChartState();
+  _MyChartState createState() => _MyChartState();
 }
 
 class _MyChartState extends State<MyChart> {
+  final ExpenseController controller = Get.find<ExpenseController>();
+  var selectedFilter = 'Monthly'.obs;
+
+  @override
+  @override
+void initState() {
+  super.initState();
+
+  // Ensure fetchChartExpenseTotals runs after the first frame is built
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    controller.fetchChartExpenseTotals(selectedFilter.value);
+  });
+}
+
+
   @override
   Widget build(BuildContext context) {
-    return BarChart(
-      mainBarData(),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            filterButton('Weekly'),
+            filterButton('Monthly'),
+            filterButton('Yearly'),
+          ],
+        ),
+        const SizedBox(height: 5),
+
+        // 🔹 Legend at the Top Right
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Wrap(
+              spacing: 12,
+              children: controller.expenseCategories.map((category) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(category['icon'], color: category['color'], size: 16),
+                    const SizedBox(width: 4),
+                    Text(category['name'],
+                        style: const TextStyle(fontSize: 12)),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 🔹 Bar Chart
+        Expanded(
+          child: Obx(() {
+            if (controller.categoryTotals.isEmpty) {
+              return const Center(child: Text("No expenses to display"));
+            }
+            return BarChart(mainBarData());
+          }),
+        ),
+      ],
     );
   }
 
-  BarChartGroupData makeGroupData(int x, double y) {
+  Widget filterButton(String label) {
+    return Obx(() => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+          child: ElevatedButton(
+            onPressed: () {
+              selectedFilter.value = label;
+              controller.fetchChartExpenseTotals(label);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: selectedFilter.value == label
+                  ? Colors.blue.shade700 // Selected color
+                  : Colors.grey.shade300, // Unselected color
+              foregroundColor: selectedFilter.value == label
+                  ? Colors.white
+                  : Colors.black87, // Text color
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10), // Rounded corners
+              ),
+              elevation: selectedFilter.value == label ? 4 : 0, // Slight shadow
+            ),
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ));
+  }
+
+  BarChartGroupData makeGroupData(int x, double y, Color color) {
     return BarChartGroupData(x: x, barRods: [
       BarChartRodData(
-          toY: y,
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.secondary,
-              Theme.of(context).colorScheme.tertiary,
-            ],
-            transform: const GradientRotation(pi / 40),
-          ),
-          width: 20,
-          backDrawRodData: BackgroundBarChartRodData(
-              show: true, toY: 5, color: Colors.grey.shade300))
+        toY: y,
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.7), color],
+          transform: const GradientRotation(pi / 4),
+        ),
+        width: 10,
+        backDrawRodData: BackgroundBarChartRodData(
+          show: true,
+          toY: y + 10,
+          color: Colors.grey.shade300,
+        ),
+      )
     ]);
   }
 
-  List<BarChartGroupData> showingGroups() => List.generate(8, (i) {
-        switch (i) {
-          case 0:
-            return makeGroupData(0, 2);
-          case 1:
-            return makeGroupData(1, 3);
-          case 2:
-            return makeGroupData(2, 2);
-          case 3:
-            return makeGroupData(3, 4.5);
-          case 4:
-            return makeGroupData(4, 3.8);
-          case 5:
-            return makeGroupData(5, 1.5);
-          case 6:
-            return makeGroupData(6, 4);
-          case 7:
-            return makeGroupData(7, 3.8);
-          default:
-            return throw Error();
-        }
-      });
+  List<BarChartGroupData> showingGroups() {
+    List<String> categories = controller.categoryTotals.keys.toList();
+    List<double> values = controller.categoryTotals.values.toList();
+    return List.generate(categories.length, (i) {
+      Color color = _getCategoryColor(categories[i]);
+      return makeGroupData(i, values[i], color);
+    });
+  }
 
   BarChartData mainBarData() {
     return BarChartData(
@@ -66,11 +142,12 @@ class _MyChartState extends State<MyChart> {
             const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 38,
-          getTitlesWidget: getTiles,
-        )),
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 38,
+            getTitlesWidget: getCategoryTitle,
+          ),
+        ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
@@ -85,72 +162,46 @@ class _MyChartState extends State<MyChart> {
     );
   }
 
-  Widget getTiles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.grey,
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    );
-    Widget text;
+  Widget getCategoryTitle(double value, TitleMeta meta) {
+    List<String> categories = controller.categoryTotals.keys.toList();
+    if (value.toInt() >= categories.length) return Container();
 
-    switch (value.toInt()) {
-      case 0:
-        text = const Text('01', style: style);
-        break;
-      case 1:
-        text = const Text('02', style: style);
-        break;
-      case 2:
-        text = const Text('03', style: style);
-        break;
-      case 3:
-        text = const Text('04', style: style);
-        break;
-      case 4:
-        text = const Text('05', style: style);
-        break;
-      case 5:
-        text = const Text('06', style: style);
-        break;
-      case 6:
-        text = const Text('07', style: style);
-        break;
-      case 7:
-        text = const Text('08', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
-    }
-    return SideTitleWidget(meta: meta, space: 16, child: text);
+    String category = categories[value.toInt()];
+    IconData icon = _getCategoryIcon(category);
+    Color color = _getCategoryColor(category);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Icon(icon,
+          color: color, size: 20), // 🔹 Icon now has a category color
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    final categoryData = controller.expenseCategories.firstWhere(
+      (element) => element['name'] == category,
+      orElse: () => {'icon': CupertinoIcons.question_circle_fill},
+    );
+    return categoryData['icon'];
   }
 
   Widget leftTitles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Colors.grey,
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    );
-    String text;
-    if (value == 0) {
-      text = '1K';
-    } else if (value == 2) {
-      text = '2K';
-    } else if (value == 3) {
-      text = '3K';
-    } else if (value == 4) {
-      text = '4K';
-    } else if (value == 5) {
-      text = '5K';
-    } else {
-      return Container();
-    }
     return SideTitleWidget(
-        space: 0,
-        meta: meta,
-        child: Text(
-          text,
-          style: style,
-        ));
+      space: 0,
+      meta: meta,
+      child: Text(
+        "${value.toInt()}K",
+        style: const TextStyle(
+            color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12),
+      ),
+    );
+  }
+
+  Color _getCategoryColor(String category) {
+    final categoryData = controller.expenseCategories.firstWhere(
+      (element) => element['name'] == category,
+      orElse: () => {'color': Colors.grey},
+    );
+    return categoryData['color'];
   }
 }

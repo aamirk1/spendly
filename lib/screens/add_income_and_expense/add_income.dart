@@ -136,7 +136,23 @@ class AddIncome extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Text(
+                  'Last Ten Expenses',
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
 // Show Last 10 Incomes
           Obx(() {
             final incomes = controller.incomeList;
@@ -149,7 +165,7 @@ class AddIncome extends StatelessWidget {
             final recentIncomes = incomes.toList()
               ..sort((a, b) => b['date'].compareTo(a['date']));
 
-            final last10Incomes = recentIncomes.take(5).toList();
+            final last10Incomes = recentIncomes.take(10).toList();
 
             return Expanded(
               child: ListView.builder(
