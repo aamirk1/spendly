@@ -39,7 +39,7 @@ class _MyPieChartState extends State<MyPieChart> {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 12),
+                  padding: const EdgeInsets.only(left: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +81,7 @@ class _MyPieChartState extends State<MyPieChart> {
     return PieChartData(
       sections: showingPieSections(),
       sectionsSpace: 2,
-      centerSpaceRadius: 30, // 🔹 Creates Donut Effect
+      centerSpaceRadius: 28, // 🔹 Creates Donut Effect
       borderData: FlBorderData(show: false),
     );
   }
@@ -97,7 +97,7 @@ class _MyPieChartState extends State<MyPieChart> {
         color: color,
         value: values[i],
         title: "${((values[i] / total) * 100).toStringAsFixed(1)}%",
-        radius: 50,
+        radius: 45,
         titleStyle: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
       );

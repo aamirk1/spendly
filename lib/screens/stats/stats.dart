@@ -24,7 +24,7 @@ class StatScreen extends StatelessWidget {
                 // 🔹 Bar Chart Container
                 Container(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.50,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -34,7 +34,7 @@ class StatScreen extends StatelessWidget {
                     child: MyChart(),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // 🔹 Pie Chart Container (Legends on left, chart on right)
                 Container(
