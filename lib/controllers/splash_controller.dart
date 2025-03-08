@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
-import 'package:spendly/res/routes/routes.dart';
 import 'package:spendly/res/routes/routes_name.dart';
 
 class SplashController extends GetxController {

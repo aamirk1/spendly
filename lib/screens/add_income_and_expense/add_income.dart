@@ -70,6 +70,10 @@ class AddIncome extends StatelessWidget {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        suffixIcon: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.add),
+                        ),
                       ),
                       items: controller.incomeCategories
                           .map<DropdownMenuItem<String>>((category) {

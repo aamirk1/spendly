@@ -13,48 +13,8 @@ class ExpenseController extends GetxController {
   var selectedCategory = ''.obs;
   final formKey = GlobalKey<FormState>();
 
-  final RxList<Map<String, dynamic>> expenseCategories = <Map<String, dynamic>>[
-    {
-      'name': 'Food',
-      'icon': CupertinoIcons.cart_fill,
-      'color': Colors.orangeAccent
-    },
-    {
-      'name': 'Transport',
-      'icon': CupertinoIcons.car_detailed,
-      'color': Colors.blueAccent
-    },
-    {
-      'name': 'Entertainment',
-      'icon': CupertinoIcons.tv_fill,
-      'color': Colors.purpleAccent
-    },
-    {
-      'name': 'Shopping',
-      'icon': CupertinoIcons.bag_fill,
-      'color': Colors.greenAccent
-    },
-    {
-      'name': 'Health',
-      'icon': CupertinoIcons.heart_fill,
-      'color': Colors.redAccent
-    },
-    {
-      'name': 'Education',
-      'icon': CupertinoIcons.book_fill,
-      'color': Colors.tealAccent
-    },
-    {
-      'name': 'Bills',
-      'icon': CupertinoIcons.doc_text_fill,
-      'color': Colors.indigoAccent
-    },
-    {
-      'name': 'Other',
-      'icon': CupertinoIcons.question_circle_fill,
-      'color': Colors.grey
-    },
-  ].obs;
+  final RxList<Map<String, dynamic>> expenseCategories =
+      <Map<String, dynamic>>[].obs;
 
   var errorMsg = Rx<String?>(null);
   var isLoading = false.obs;
@@ -66,6 +26,27 @@ class ExpenseController extends GetxController {
   void onInit() {
     super.onInit();
     fetchExpenseTotals();
+    fetchCategories();
+  }
+
+  void fetchCategories() {
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    FirebaseFirestore.instance
+        .collection('categories')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .listen((snapshot) {
+      expenseCategories.value = snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'name': doc['name'],
+          'icon': _getIconData(doc['icon']), // Convert icon string to IconData
+          'color': Color(int.parse(doc['color'].replaceAll("#", "0xff"))),
+        };
+      }).toList();
+    });
   }
 
   void fetchChartExpenseTotals(String filter) {
@@ -201,6 +182,29 @@ class ExpenseController extends GetxController {
       Get.snackbar('Deleted', 'Expense removed successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete expense: $e');
+    }
+  }
+
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case 'flame_fill':
+        return CupertinoIcons.flame_fill;
+      case 'car_detailed':
+        return CupertinoIcons.car_detailed;
+      case 'tv_fill':
+        return CupertinoIcons.tv_fill;
+      case 'cart_fill':
+        return CupertinoIcons.cart_fill;
+      case 'heart_fill':
+        return CupertinoIcons.heart_fill;
+      case 'book_fill':
+        return CupertinoIcons.book_fill;
+      case 'doc_text_fill':
+        return CupertinoIcons.doc_text_fill;
+      case 'question_circle_fill':
+        return CupertinoIcons.question_circle_fill;
+      default:
+        return CupertinoIcons.question_circle; // Default icon
     }
   }
 }

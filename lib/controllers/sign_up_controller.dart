@@ -69,7 +69,9 @@ class SignUpController extends GetxController {
         email: emailController.text.trim(),
         name: nameController.text.trim(),
       );
+
       await setUserData(myUser);
+      await addDefaultCategories(user.uid); // ✅ Add default categories
 
       signUpRequired.value = false;
       Get.snackbar('Success', 'Account created successfully',
@@ -120,6 +122,49 @@ class SignUpController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Unexpected error while saving user data: $e',
           snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> addDefaultCategories(String userId) async {
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final List<Map<String, dynamic>> defaultCategories = [
+      {'name': 'Food', 'icon': 'assets/emojis/food.png', 'color': '#FFA500'},
+      {
+        'name': 'Transport',
+        'icon': 'assets/emojis/transport.png',
+        'color': '#0000FF'
+      },
+      {
+        'name': 'Entertainment',
+        'icon': 'assets/emojis/entertainment.png',
+        'color': '#800080'
+      },
+      {
+        'name': 'Shopping',
+        'icon': 'assets/emojis/shopping.png',
+        'color': '#008000'
+      },
+      {
+        'name': 'Health',
+        'icon': 'assets/emojis/health.png',
+        'color': '#FF0000'
+      },
+      {
+        'name': 'Education',
+        'icon': 'assets/emojis/education.png',
+        'color': '#008080'
+      },
+      {'name': 'Bills', 'icon': 'assets/emojis/bills.png', 'color': '#4B0082'},
+      {'name': 'Other', 'icon': 'assets/emojis/other.png', 'color': '#808080'},
+    ];
+
+    for (var category in defaultCategories) {
+      await _firestore.collection('categories').add({
+        'userId': userId,
+        'name': category['name'],
+        'icon': category['icon'],
+        'color': category['color'],
+      });
     }
   }
 

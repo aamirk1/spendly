@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:spendly/controllers/expenseController.dart';
 import 'package:spendly/screens/auth/components/my_text_field.dart';
+import 'package:spendly/screens/category/manage_categories_screen.dart';
 
 class AddExpense extends StatelessWidget {
   AddExpense({super.key});
@@ -69,6 +70,12 @@ class AddExpense extends StatelessWidget {
                         hintText: 'Select a category',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            Get.to(() => ManageCategoriesScreen());
+                          },
+                          icon: Icon(Icons.add),
                         ),
                       ),
                       items: controller.expenseCategories

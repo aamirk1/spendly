@@ -49,9 +49,10 @@ dependencies:
   # # firebase_storage: 
   # country_picker: 
   lottie:
+  # rive: 
   # shared_preferences: ^2.5.2
   # google_ml_kit: 
-  # shared_preferences: ^2.5.2
+  # shared_preferences:
 
 dev_dependencies:
   flutter_test:

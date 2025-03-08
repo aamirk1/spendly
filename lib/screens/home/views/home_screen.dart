@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            Get.to(IncomeExpenseHome(), arguments: myUser);
+            Get.to(() => IncomeExpenseHome(), arguments: myUser);
           },
           shape: const CircleBorder(),
           child: Container(
