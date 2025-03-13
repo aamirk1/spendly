@@ -28,7 +28,6 @@ class ViewAllIncome extends StatelessWidget {
           itemCount: incomes.length,
           itemBuilder: (context, index) {
             var income = incomes[index];
-            print('income $income');
 
             String category = income['category'];
             String description = income['description'];

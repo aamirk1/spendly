@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -91,6 +93,49 @@ class IncomeController extends GetxController {
 
       categoryTotals.value = tempTotals;
       incomeList.value = tempIncomes;
+    });
+  }
+
+  void fetchChartIncomeTotals(String filter) {
+    String? userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    DateTime now = DateTime.now();
+    DateTime startDate;
+
+    if (filter == 'Weekly') {
+      startDate =
+          now.subtract(Duration(days: now.weekday - 1)); // Start of week
+    } else if (filter == 'Monthly') {
+      startDate = DateTime(now.year, now.month, 1); // Start of month
+    } else {
+      startDate = DateTime(now.year, 1, 1); // Start of year
+    }
+
+    categoryTotals.clear(); // Clear previous totals
+
+    _firestore
+        .collection('incomes')
+        .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .snapshots()
+        .listen((snapshot) {
+      Map<String, double> tempTotals = {};
+
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data();
+        String category = data['category'] ?? "Unknown";
+        double amount = (data['amount'] as num).toDouble();
+        DateTime incomeDate = (data['date'] as Timestamp).toDate();
+
+        if (incomeDate.isAfter(startDate) ||
+            incomeDate.isAtSameMomentAs(startDate)) {
+          tempTotals[category] = (tempTotals[category] ?? 0) + amount;
+        }
+      }
+
+      categoryTotals.assignAll(tempTotals); // Update the reactive data
+      categoryTotals.refresh(); // Ensure UI is updated
     });
   }
 

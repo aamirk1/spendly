@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/models/myuser.dart';
 import 'package:spendly/res/routes/routes_name.dart';
@@ -126,44 +126,54 @@ class SignUpController extends GetxController {
   }
 
   Future<void> addDefaultCategories(String userId) async {
-    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    // List of default categories with name, icon as IconData, and color as HEX
     final List<Map<String, dynamic>> defaultCategories = [
-      {'name': 'Food', 'icon': 'assets/emojis/food.png', 'color': '#FFA500'},
+      {'name': 'Food', 'icon': Icons.fastfood.codePoint, 'color': 'FFFFA500'},
       {
         'name': 'Transport',
-        'icon': 'assets/emojis/transport.png',
-        'color': '#0000FF'
+        'icon': Icons.directions_car.codePoint,
+        'color': 'FF0000FF'
       },
       {
         'name': 'Entertainment',
-        'icon': 'assets/emojis/entertainment.png',
-        'color': '#800080'
+        'icon': Icons.movie.codePoint,
+        'color': 'FF800080'
       },
       {
         'name': 'Shopping',
-        'icon': 'assets/emojis/shopping.png',
-        'color': '#008000'
+        'icon': Icons.local_mall.codePoint,
+        'color': 'FF008000'
       },
       {
         'name': 'Health',
-        'icon': 'assets/emojis/health.png',
-        'color': '#FF0000'
+        'icon': Icons.medical_services.codePoint,
+        'color': 'FFFF0000'
       },
       {
         'name': 'Education',
-        'icon': 'assets/emojis/education.png',
-        'color': '#008080'
+        'icon': Icons.school.codePoint,
+        'color': 'FF008080'
       },
-      {'name': 'Bills', 'icon': 'assets/emojis/bills.png', 'color': '#4B0082'},
-      {'name': 'Other', 'icon': 'assets/emojis/other.png', 'color': '#808080'},
+      {
+        'name': 'Bills',
+        'icon': Icons.account_balance_wallet.codePoint,
+        'color': 'FF4B0082'
+      },
+      {
+        'name': 'Other',
+        'icon': Icons.more_horiz.codePoint,
+        'color': 'FF808080'
+      },
     ];
 
     for (var category in defaultCategories) {
-      await _firestore.collection('categories').add({
+      await firestore.collection('categories').add({
         'userId': userId,
         'name': category['name'],
-        'icon': category['icon'],
-        'color': category['color'],
+        'icon': category['icon'], // Storing codePoint instead of asset path
+        'color': category['color'], // Storing color as HEX string
       });
     }
   }

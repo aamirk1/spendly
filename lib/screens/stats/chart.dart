@@ -17,16 +17,14 @@ class _MyChartState extends State<MyChart> {
   var selectedFilter = 'Monthly'.obs;
 
   @override
-  @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  // Ensure fetchChartExpenseTotals runs after the first frame is built
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    controller.fetchChartExpenseTotals(selectedFilter.value);
-  });
-}
-
+    // Ensure fetchChartExpenseTotals runs after the first frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchChartExpenseTotals(selectedFilter.value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,18 +40,26 @@ void initState() {
         ),
         const SizedBox(height: 5),
 
-        // 🔹 Legend at the Top Right
+        // 🔹 Legend at the Top Right - Only categories with income
         Align(
           alignment: Alignment.centerRight,
           child: Padding(
             padding: const EdgeInsets.only(right: 20),
             child: Wrap(
               spacing: 12,
-              children: controller.expenseCategories.map((category) {
+              children: _getNonZeroExpenseCategories().map((category) {
                 return Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(category['icon'], color: category['color'], size: 16),
+                    Icon(
+                      IconData(
+                        category['icon'] as int, // Convert back to IconData
+                        fontFamily: 'MaterialIcons',
+                      ),
+                      color: Color(int.parse(
+                          "0x" + category['color'].replaceAll("#", ""))),
+                      size: 16,
+                    ),
                     const SizedBox(width: 4),
                     Text(category['name'],
                         style: const TextStyle(fontSize: 12)),
@@ -118,7 +124,7 @@ void initState() {
         width: 10,
         backDrawRodData: BackgroundBarChartRodData(
           show: true,
-          toY: y + 10,
+          toY: y + 0.10,
           color: Colors.grey.shade300,
         ),
       )
@@ -126,12 +132,25 @@ void initState() {
   }
 
   List<BarChartGroupData> showingGroups() {
-    List<String> categories = controller.categoryTotals.keys.toList();
-    List<double> values = controller.categoryTotals.values.toList();
+    List categories =
+        _getNonZeroExpenseCategories().map((e) => e['name']).toList();
+    List<double> values = categories
+        .map((category) => controller.categoryTotals[category] ?? 0)
+        .toList();
+
     return List.generate(categories.length, (i) {
       Color color = _getCategoryColor(categories[i]);
       return makeGroupData(i, values[i], color);
     });
+  }
+
+  List<Map<String, dynamic>> _getNonZeroExpenseCategories() {
+    // Filter the categories that have expenses
+    return controller.expenseCategories.where((category) {
+      String categoryName = category['name'];
+      double total = controller.categoryTotals[categoryName] ?? 0;
+      return total > 0;
+    }).toList();
   }
 
   BarChartData mainBarData() {
@@ -163,7 +182,8 @@ void initState() {
   }
 
   Widget getCategoryTitle(double value, TitleMeta meta) {
-    List<String> categories = controller.categoryTotals.keys.toList();
+    List categories =
+        _getNonZeroExpenseCategories().map((e) => e['name']).toList();
     if (value.toInt() >= categories.length) return Container();
 
     String category = categories[value.toInt()];
@@ -182,7 +202,10 @@ void initState() {
       (element) => element['name'] == category,
       orElse: () => {'icon': CupertinoIcons.question_circle_fill},
     );
-    return categoryData['icon'];
+    return IconData(
+      categoryData['icon'] as int, // Convert back to IconData
+      fontFamily: 'MaterialIcons',
+    );
   }
 
   Widget leftTitles(double value, TitleMeta meta) {
@@ -202,6 +225,6 @@ void initState() {
       (element) => element['name'] == category,
       orElse: () => {'color': Colors.grey},
     );
-    return categoryData['color'];
+    return Color(int.parse("0x" + categoryData['color'].replaceAll("#", "")));
   }
 }

@@ -42,10 +42,22 @@ class ViewAllExpense extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: categoryData['color'],
-                  child: Icon(categoryData['icon'], color: Colors.white),
+                  radius: 25, // Equivalent to 50x50 Container
+                  backgroundColor: Color(
+                    int.parse(
+                      "0x" + categoryData['color'].replaceAll("#", ""),
+                    ),
+                  ),
+                  child: Icon(
+                    IconData(
+                      categoryData['icon'] as int, // Convert back to IconData
+                      fontFamily: 'MaterialIcons',
+                    ), // Category icon
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
-                title: Text(amount.toString(),
+                title: Text('\$$amount',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

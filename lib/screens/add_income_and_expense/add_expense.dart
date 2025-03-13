@@ -81,20 +81,29 @@ class AddExpense extends StatelessWidget {
                       items: controller.expenseCategories
                           .map<DropdownMenuItem<String>>((category) {
                         return DropdownMenuItem<String>(
-                          value: category['name']
-                              as String, // Explicitly cast to String
+                          value: category['name'] as String, // Category name
                           child: Row(
                             children: [
-                              Icon(category['icon'] as IconData,
-                                  color: category['color'] as Color),
+                              // Use dynamic IconData from code
+                              Icon(
+                                IconData(
+                                  category['icon']
+                                      as int, // Get icon code dynamically
+                                  fontFamily: 'MaterialIcons',
+                                ),
+                                color: Color(int.parse("0x" +
+                                    category['color'].replaceAll("#", ""))),
+                              ),
                               SizedBox(width: 10),
-                              Text(category['name'] as String),
+                              Text(category['name']
+                                  as String), // Display category name
                             ],
                           ),
                         );
                       }).toList(),
                       onChanged: (value) {
-                        controller.selectedCategory.value = value ?? '';
+                        controller.selectedCategory.value =
+                            value ?? ''; // Update selected category
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -201,9 +210,17 @@ class AddExpense extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12)),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: categoryData['color'],
+                        backgroundColor: Color(
+                          int.parse(
+                            "0x" + categoryData['color'].replaceAll("#", ""),
+                          ),
+                        ),
                         child: Icon(
-                          categoryData['icon'],
+                          IconData(
+                            categoryData['icon']
+                                as int, // Get icon code dynamically
+                            fontFamily: 'MaterialIcons',
+                          ),
                           color: Colors.white,
                         ),
                       ),
