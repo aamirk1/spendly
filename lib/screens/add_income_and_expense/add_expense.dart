@@ -237,7 +237,7 @@ class AddExpense extends StatelessWidget {
                             const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       trailing: Text(
-                        "\$${amount.toStringAsFixed(2)}",
+                        "₹${amount.toStringAsFixed(2)}",
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500),
                       ),

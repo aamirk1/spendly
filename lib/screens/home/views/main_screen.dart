@@ -113,7 +113,7 @@ class MainScreen extends StatelessWidget {
                         .fold(0, (sum, value) => sum + value);
                     double totalAmount = totalIncome - totalExpense;
                     return Text(
-                      '\$ ${totalAmount.toStringAsFixed(2)}',
+                      '₹ ${totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
                           fontSize: 40,
                           color: Colors.white,
@@ -157,7 +157,7 @@ class MainScreen extends StatelessWidget {
                                       .categoryTotals.values
                                       .fold(0, (sum, value) => sum + value);
                                   return Text(
-                                    '\$ ${totalIncome.toStringAsFixed(2)}',
+                                    '₹ ${totalIncome.toStringAsFixed(2)}',
                                     style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.white,
@@ -199,7 +199,7 @@ class MainScreen extends StatelessWidget {
                                       .categoryTotals.values
                                       .fold(0, (sum, value) => sum + value);
                                   return Text(
-                                    '\$ ${totalExpense.toStringAsFixed(2)}',
+                                    '₹ ${totalExpense.toStringAsFixed(2)}',
                                     style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.white,
@@ -356,7 +356,7 @@ class MainScreen extends StatelessWidget {
                                     .center, // Aligns text vertically
                                 children: [
                                   Text(
-                                    "\$${totalAmount.toStringAsFixed(2)}",
+                                    "₹${totalAmount.toStringAsFixed(2)}",
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Theme.of(context)

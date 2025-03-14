@@ -494,12 +494,12 @@
   
 //   String _getCurrencySymbol(String currencyCode) {
 //     switch (currencyCode) {
-//       case 'USD': return '\$';
+//       case 'USD': return '₹';
 //       case 'EUR': return '€';
 //       case 'GBP': return '£';
 //       case 'JPY': return '¥';
-//       case 'CAD': return 'C\$';
-//       case 'AUD': return 'A\$';
+//       case 'CAD': return 'C₹';
+//       case 'AUD': return 'A₹';
 //       case 'CNY': return '¥';
 //       case 'INR': return '₹';
 //       default: return currencyCode;

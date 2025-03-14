@@ -46,7 +46,7 @@ class CategorywiseViewAllExpense extends StatelessWidget {
                   child: Icon(Icons.money, color: Colors.white),
                 ),
                 title: Text(
-                  "\$${amount.toStringAsFixed(2)}",
+                  "₹${amount.toStringAsFixed(2)}",
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Column(

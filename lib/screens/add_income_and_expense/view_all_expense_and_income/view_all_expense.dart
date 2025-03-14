@@ -57,7 +57,7 @@ class ViewAllExpense extends StatelessWidget {
                     size: 24,
                   ),
                 ),
-                title: Text('\$$amount',
+                title: Text('₹$amount',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

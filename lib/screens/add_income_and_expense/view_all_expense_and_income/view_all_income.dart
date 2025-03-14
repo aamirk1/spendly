@@ -50,7 +50,7 @@ class ViewAllIncome extends StatelessWidget {
                   backgroundColor: categoryData['color'],
                   child: Icon(categoryData['icon'], color: Colors.white),
                 ),
-                title: Text("\$${amount.toStringAsFixed(2)}",
+                title: Text("₹${amount.toStringAsFixed(2)}",
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

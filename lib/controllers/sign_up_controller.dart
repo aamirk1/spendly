@@ -34,7 +34,7 @@ class SignUpController extends GetxController {
     containsLowerCase.value = val.contains(RegExp(r'[a-z]'));
     containsNumber.value = val.contains(RegExp(r'[0-9]'));
     containsSpecialChar.value =
-        val.contains(RegExp(r'[!@#\$&*~`()%\-_+=;:,.<>?/"\[\]{}|^]'));
+        val.contains(RegExp(r'[!@#₹&*~`()%\-_+=;:,.<>?/"\[\]{}|^]'));
     contains8Length.value = val.length >= 8;
   }
 
