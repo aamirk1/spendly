@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:spendly/models/myuser.dart';
 import 'package:spendly/res/routes/routes_name.dart';
 
@@ -38,6 +39,68 @@ class SignUpController extends GetxController {
     contains8Length.value = val.length >= 8;
   }
 
+  // Future<void> signUp() async {
+  //   if (nameController.text.isEmpty ||
+  //       emailController.text.isEmpty ||
+  //       phoneNumberController.text.isEmpty ||
+  //       passwordController.text.isEmpty) {
+  //     Get.snackbar('Error', 'Please fill all fields',
+  //         snackPosition: SnackPosition.BOTTOM);
+  //     return;
+  //   }
+
+  //   signUpRequired.value = true;
+
+  //   try {
+  //     UserCredential userCredential = await _auth
+  //         .createUserWithEmailAndPassword(
+  //           email: emailController.text.trim(),
+  //           password: passwordController.text.trim(),
+  //         )
+  //         .timeout(const Duration(seconds: 10));
+
+  //     User? user = userCredential.user;
+  //     if (user == null) {
+  //       throw FirebaseAuthException(code: "user-creation-failed");
+  //     }
+
+  //     MyUser myUser = MyUser.empty.copyWith(
+  //       userId: user.uid,
+  //       phoneNumber: phoneNumberController.text.trim(),
+  //       email: emailController.text.trim(),
+  //       name: nameController.text.trim(),
+  //     );
+
+  //     await setUserData(myUser);
+  //     await addDefaultCategories(user.uid); // ✅ Add default categories
+
+  //     signUpRequired.value = false;
+  //     Get.snackbar('Success', 'Account created successfully',
+  //         snackPosition: SnackPosition.BOTTOM);
+  //     Get.offAllNamed(RoutesName.onboardingView, arguments: myUser);
+  //   } on FirebaseAuthException catch (e) {
+  //     signUpRequired.value = false;
+  //     Get.snackbar('Error', _getFirebaseAuthError(e.code),
+  //         snackPosition: SnackPosition.BOTTOM);
+  //   } on FirebaseException catch (e) {
+  //     signUpRequired.value = false;
+  //     Get.snackbar('Error', 'Firestore error: ${e.message}',
+  //         snackPosition: SnackPosition.BOTTOM);
+  //   } on SocketException {
+  //     signUpRequired.value = false;
+  //     Get.snackbar(
+  //         'Network Error', 'No internet connection. Please check your network.',
+  //         snackPosition: SnackPosition.BOTTOM);
+  //   } on TimeoutException {
+  //     signUpRequired.value = false;
+  //     Get.snackbar('Timeout', 'Network timeout. Please try again.',
+  //         snackPosition: SnackPosition.BOTTOM);
+  //   } catch (e) {
+  //     signUpRequired.value = false;
+  //     Get.snackbar('Error', 'Unexpected Error: $e',
+  //         snackPosition: SnackPosition.BOTTOM);
+  //   }
+  // }
   Future<void> signUp() async {
     if (nameController.text.isEmpty ||
         emailController.text.isEmpty ||
@@ -73,10 +136,18 @@ class SignUpController extends GetxController {
       await setUserData(myUser);
       await addDefaultCategories(user.uid); // ✅ Add default categories
 
+      // ✅ Save user details and login status in GetStorage
+      final box = GetStorage();
+      box.write("isLoggedIn", true);
+      box.write("userId", myUser.userId);
+      box.write("name", myUser.name);
+      box.write("email", myUser.email);
+      box.write("phoneNumber", myUser.phoneNumber);
+
       signUpRequired.value = false;
       Get.snackbar('Success', 'Account created successfully',
           snackPosition: SnackPosition.BOTTOM);
-      Get.offAllNamed(RoutesName.homeView, arguments: myUser);
+      Get.offAllNamed(RoutesName.onboardingView, arguments: myUser);
     } on FirebaseAuthException catch (e) {
       signUpRequired.value = false;
       Get.snackbar('Error', _getFirebaseAuthError(e.code),

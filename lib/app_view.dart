@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:spendly/res/routes/routes.dart';
+import 'package:spendly/res/routes/routes_name.dart';
 
 class MyAppView extends StatelessWidget {
-  const MyAppView({super.key});
+  const MyAppView({Key? key, }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-   return GetMaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Expense Tracker",
       theme: ThemeData(
@@ -20,7 +21,8 @@ class MyAppView extends StatelessWidget {
           outline: Colors.grey,
         ),
       ),
-            getPages: AppRoutes.appRoutes(),
+      getPages: AppRoutes.appRoutes(),
+      initialRoute: RoutesName.splashScreen,
     );
   }
 }

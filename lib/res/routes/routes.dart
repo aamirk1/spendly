@@ -9,19 +9,21 @@ import 'package:spendly/screens/add_income_and_expense/view_all_expense_and_inco
 import 'package:spendly/screens/auth/sign_in_screen.dart';
 import 'package:spendly/screens/auth/sign_up_screen.dart';
 import 'package:spendly/screens/home/views/home_screen.dart';
+import 'package:spendly/screens/setup_screen/onboarding_screen.dart';
+import 'package:spendly/screens/splash_screen/splash_screen.dart';
 
 class AppRoutes {
   static appRoutes() => [
-        // GetPage(
-        //     name: RoutesName.splashScreen,
-        //     page: () => SplashScreen(),
-        //     transitionDuration: const Duration(milliseconds: 250),
-        //     transition: Transition.leftToRight),
-        // GetPage(
-        //     name: RoutesName.setupView,
-        //     page: () => SetupView(),
-        //     transitionDuration: const Duration(milliseconds: 250),
-        //     transition: Transition.leftToRight),
+        GetPage(
+            name: RoutesName.splashScreen,
+            page: () => SplashScreen(),
+            transitionDuration: const Duration(milliseconds: 250),
+            transition: Transition.leftToRight),
+        GetPage(
+            name: RoutesName.onboardingView,
+            page: () => OnboardingScreen(),
+            transitionDuration: const Duration(milliseconds: 250),
+            transition: Transition.leftToRight),
         GetPage(
             name: RoutesName.welcomeView,
             page: () => const WelcomeScreen(),
@@ -62,7 +64,6 @@ class AppRoutes {
             page: () => CategorywiseViewAllExpense(),
             transitionDuration: const Duration(milliseconds: 250),
             transition: Transition.leftToRightWithFade),
-
         GetPage(
             name: RoutesName.viewAllIncome,
             page: () => ViewAllIncome(),

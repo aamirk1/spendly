@@ -16,7 +16,7 @@ class SignUpScreen extends StatelessWidget {
         child: Obx(
           () => Column(
             children: [
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.90,
                 child: MyTextField(
@@ -96,7 +96,7 @@ class SignUpScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               controller.signUpRequired.value
                   ? const CircularProgressIndicator()
                   : SizedBox(

@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:spendly/res/routes/routes_name.dart';
 
 class SplashController extends GetxController {
+  final box = GetStorage();
+
   @override
   void onInit() {
     super.onInit();
@@ -11,20 +13,23 @@ class SplashController extends GetxController {
   }
 
   Future<void> _checkLoginStatus() async {
-    await Future.delayed(Duration(seconds: 3)); // Simulate animation delay
+    await Future.delayed(const Duration(seconds: 3)); // Simulate splash delay
 
     User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      Get.offAllNamed(RoutesName.welcomeView);
-    } else {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // bool isSetupComplete = prefs.getBool('isSetupComplete') ?? false;
 
-      Get.offAllNamed(RoutesName.homeView);
-      // if (isSetupComplete) {
-      // } else {
-      //   Get.offAllNamed(RoutesName.setupView);
-      // }
+    if (user != null) {
+      bool hasSeenOnboarding = box.read('hasSeenOnboarding') ?? false;
+      bool isSetupComplete = box.read('isSetupComplete') ?? false;
+
+      if (!hasSeenOnboarding) {
+        Get.offAllNamed(RoutesName.onboardingView);
+      } else if (isSetupComplete) {
+        Get.offAllNamed(RoutesName.homeView);
+      } else {
+        Get.offAllNamed(RoutesName.welcomeView);
+      }
+    } else {
+      Get.offAllNamed(RoutesName.welcomeView);
     }
   }
 }
