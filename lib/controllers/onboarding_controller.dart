@@ -10,14 +10,14 @@ class OnboardingController extends GetxController {
   final box = GetStorage();
 
   void nextPage(MyUser myUser) {
-    // ✅ Accept user object
+    // Make myUser nullable
     if (currentIndex.value < 2) {
       pageController.nextPage(
           duration: Duration(milliseconds: 500), curve: Curves.ease);
     } else {
-      box.write('hasSeenOnboarding', true); // ✅ Mark onboarding as seen
+      box.write('hasSeenOnboarding', true); // Mark onboarding as seen
       Get.offAllNamed(RoutesName.homeView,
-          arguments: myUser); // ✅ Pass user data
+          arguments: myUser); // Modified: Passing MyUser instead of User
     }
   }
 }

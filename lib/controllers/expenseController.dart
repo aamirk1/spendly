@@ -14,10 +14,8 @@ class ExpenseController extends GetxController {
   final formKey = GlobalKey<FormState>();
 
   var expenseCategories = <Map<String, dynamic>>[].obs;
-
   var errorMsg = Rx<String?>(null);
   var isLoading = false.obs;
-
   var categoryTotals = <String, double>{}.obs;
   var expensesList = <Map<String, dynamic>>[].obs;
 
@@ -28,15 +26,17 @@ class ExpenseController extends GetxController {
     fetchCategories();
   }
 
-  void fetchCategories() {
+  // Convert fetchCategories to a Future function
+  Future<void> fetchCategories() async {
     String? userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
-    _firestore
-        .collection('categories')
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .listen((snapshot) {
+    try {
+      var snapshot = await _firestore
+          .collection('categories')
+          .where('userId', isEqualTo: userId)
+          .get();
+
       expenseCategories.value = snapshot.docs.map((doc) {
         return {
           'id': doc.id,
@@ -45,10 +45,13 @@ class ExpenseController extends GetxController {
           'color': doc['color'],
         };
       }).toList();
-    });
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch categories: $e');
+    }
   }
 
-  void fetchChartExpenseTotals(String filter) {
+  // Convert fetchChartExpenseTotals to a Future function
+  Future<void> fetchChartExpenseTotals(String filter) async {
     String? userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -56,23 +59,22 @@ class ExpenseController extends GetxController {
     DateTime startDate;
 
     if (filter == 'Weekly') {
-      startDate =
-          now.subtract(Duration(days: now.weekday - 1)); // Start of week
+      startDate = now.subtract(Duration(days: now.weekday - 1)); // Start of week
     } else if (filter == 'Monthly') {
       startDate = DateTime(now.year, now.month, 1); // Start of month
     } else {
       startDate = DateTime(now.year, 1, 1); // Start of year
     }
 
-    // 🔹 Clear previous data to avoid UI flickering
     categoryTotals.clear();
 
-    _firestore
-        .collection('expenses')
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-        .snapshots()
-        .listen((snapshot) {
+    try {
+      var snapshot = await _firestore
+          .collection('expenses')
+          .where('userId', isEqualTo: userId)
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .get();
+
       Map<String, double> tempTotals = {};
 
       for (var doc in snapshot.docs) {
@@ -81,30 +83,31 @@ class ExpenseController extends GetxController {
         String category = data['category'] ?? "Unknown";
         double amount = (data['amount'] as num).toDouble();
 
-        // 🔹 Convert Firestore Timestamp to DateTime for consistency
         DateTime expenseDate = (data['date'] as Timestamp).toDate();
 
-        // 🔹 Ensure data falls within the correct date range
-        if (expenseDate.isAfter(startDate) ||
-            expenseDate.isAtSameMomentAs(startDate)) {
+        if (expenseDate.isAfter(startDate) || expenseDate.isAtSameMomentAs(startDate)) {
           tempTotals[category] = (tempTotals[category] ?? 0) + amount;
         }
       }
 
-      categoryTotals.assignAll(tempTotals); // ✅ Assign new data
-      categoryTotals.refresh(); // ✅ Ensure UI updates
-      update(); // ✅ Notify GetX to rebuild UI
-    });
+      categoryTotals.assignAll(tempTotals);
+      categoryTotals.refresh();
+      update();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch expense totals: $e');
+    }
   }
 
-  void fetchExpenseTotals() {
+  // Convert fetchExpenseTotals to a Future function
+  Future<void> fetchExpenseTotals() async {
     String? userId = _auth.currentUser?.uid;
 
-    _firestore
-        .collection('expenses')
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .listen((snapshot) {
+    try {
+      var snapshot = await _firestore
+          .collection('expenses')
+          .where('userId', isEqualTo: userId)
+          .get();
+
       Map<String, double> tempTotals = {};
       List<Map<String, dynamic>> tempExpenses = [];
 
@@ -130,9 +133,12 @@ class ExpenseController extends GetxController {
 
       categoryTotals.value = tempTotals;
       expensesList.value = tempExpenses;
-    });
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch expenses: $e');
+    }
   }
 
+  // Convert addExpense to a Future function
   Future<void> addExpense() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
@@ -143,8 +149,7 @@ class ExpenseController extends GetxController {
     isLoading.value = true;
 
     try {
-      DocumentReference expenseRef =
-          await _firestore.collection('expenses').add({
+      DocumentReference expenseRef = await _firestore.collection('expenses').add({
         'userId': userId,
         'amount': double.parse(amountController.text.trim()),
         'description': descriptionController.text.trim(),
@@ -166,7 +171,8 @@ class ExpenseController extends GetxController {
     }
   }
 
-  void updateExpense(String docId, Map<String, dynamic> updatedData) async {
+  // Convert updateExpense to a Future function
+  Future<void> updateExpense(String docId, Map<String, dynamic> updatedData) async {
     try {
       await _firestore.collection('expenses').doc(docId).update(updatedData);
       Get.snackbar('Success', 'Expense updated successfully');
@@ -175,12 +181,31 @@ class ExpenseController extends GetxController {
     }
   }
 
-  void deleteExpense(String docId) async {
+  // Convert deleteExpense to a Future function
+  Future<void> deleteExpense(String docId) async {
     try {
       await _firestore.collection('expenses').doc(docId).delete();
       Get.snackbar('Deleted', 'Expense removed successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete expense: $e');
     }
+  }
+
+  final Map<int, IconData> iconMapping = {
+    0xe318: Icons.home,
+    0xe8f4: Icons.shopping_cart,
+    0xe8b5: Icons.restaurant,
+    0xeb44: Icons.school,
+    0xe8d3: Icons.local_hospital,
+    0xe332: Icons.directions_car,
+    0xe8f8: Icons.movie,
+    0xe8f7: Icons.local_gas_station,
+    0xe57f: Icons.attach_money,
+    // Add more mappings as needed
+  };
+
+  // Helper method to get icon
+  IconData getIconForCode(int code) {
+    return iconMapping[code] ?? Icons.category; // Default icon
   }
 }

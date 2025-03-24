@@ -50,7 +50,6 @@ class IncomeController extends GetxController {
 
   var errorMsg = Rx<String?>(null);
   var isLoading = false.obs;
-
   var categoryTotals = <String, double>{}.obs;
   var incomeList = <Map<String, dynamic>>[].obs; // ✅ Income list for UI
 
@@ -60,14 +59,16 @@ class IncomeController extends GetxController {
     fetchIncomeTotals();
   }
 
-  void fetchIncomeTotals() {
+  // Convert fetchIncomeTotals to a Future function
+  Future<void> fetchIncomeTotals() async {
     String? userId = _auth.currentUser?.uid;
 
-    _firestore
-        .collection('incomes')
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .listen((snapshot) {
+    try {
+      var snapshot = await _firestore
+          .collection('incomes')
+          .where('userId', isEqualTo: userId)
+          .get();
+
       Map<String, double> tempTotals = {};
       List<Map<String, dynamic>> tempIncomes = [];
 
@@ -93,10 +94,13 @@ class IncomeController extends GetxController {
 
       categoryTotals.value = tempTotals;
       incomeList.value = tempIncomes;
-    });
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch income totals: $e');
+    }
   }
 
-  void fetchChartIncomeTotals(String filter) {
+  // Convert fetchChartIncomeTotals to a Future function
+  Future<void> fetchChartIncomeTotals(String filter) async {
     String? userId = _auth.currentUser?.uid;
     if (userId == null) return;
 
@@ -114,12 +118,13 @@ class IncomeController extends GetxController {
 
     categoryTotals.clear(); // Clear previous totals
 
-    _firestore
-        .collection('incomes')
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-        .snapshots()
-        .listen((snapshot) {
+    try {
+      var snapshot = await _firestore
+          .collection('incomes')
+          .where('userId', isEqualTo: userId)
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .get();
+
       Map<String, double> tempTotals = {};
 
       for (var doc in snapshot.docs) {
@@ -136,9 +141,12 @@ class IncomeController extends GetxController {
 
       categoryTotals.assignAll(tempTotals); // Update the reactive data
       categoryTotals.refresh(); // Ensure UI is updated
-    });
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch chart income totals: $e');
+    }
   }
 
+  // Convert addIncome to a Future function
   Future<void> addIncome() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
@@ -174,7 +182,9 @@ class IncomeController extends GetxController {
     }
   }
 
-  void updateIncome(String docId, Map<String, dynamic> updatedData) async {
+  // Convert updateIncome to a Future function
+  Future<void> updateIncome(
+      String docId, Map<String, dynamic> updatedData) async {
     try {
       await _firestore.collection('incomes').doc(docId).update(updatedData);
       Get.snackbar('Success', 'Income updated successfully');
@@ -183,7 +193,8 @@ class IncomeController extends GetxController {
     }
   }
 
-  void deleteIncome(String docId) async {
+  // Convert deleteIncome to a Future function
+  Future<void> deleteIncome(String docId) async {
     try {
       await _firestore.collection('incomes').doc(docId).delete();
       Get.snackbar('Deleted', 'Income removed successfully');

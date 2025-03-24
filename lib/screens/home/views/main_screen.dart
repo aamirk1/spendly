@@ -332,13 +332,13 @@ class MainScreen extends StatelessWidget {
                                   ),
                                 ),
                                 child: Icon(
-                                  IconData(
-                                    categoryData['icon']
-                                        as int, // Convert back to IconData
-                                    fontFamily: 'MaterialIcons',
-                                  ), // Category icon
-                                  color: Colors.white,
-                                  size: 24,
+                                  expenseController.getIconForCode(
+                                      categoryData['icon'] as int),
+                                  // ignore: prefer_interpolation_to_compose_strings
+                                  
+                                  color: Color(int.parse("0x" +
+                                      categoryData['color']
+                                          .replaceAll("#", ""))),
                                 ),
                               ),
                               title: Text(

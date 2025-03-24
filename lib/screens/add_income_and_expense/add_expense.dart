@@ -86,11 +86,8 @@ class AddExpense extends StatelessWidget {
                             children: [
                               // Use dynamic IconData from code
                               Icon(
-                                IconData(
-                                  category['icon']
-                                      as int, // Get icon code dynamically
-                                  fontFamily: 'MaterialIcons',
-                                ),
+                                controller
+                                    .getIconForCode(category['icon'] as int),
                                 color: Color(int.parse("0x" +
                                     category['color'].replaceAll("#", ""))),
                               ),
@@ -216,12 +213,10 @@ class AddExpense extends StatelessWidget {
                           ),
                         ),
                         child: Icon(
-                          IconData(
-                            categoryData['icon']
-                                as int, // Get icon code dynamically
-                            fontFamily: 'MaterialIcons',
-                          ),
-                          color: Colors.white,
+                          controller
+                              .getIconForCode(categoryData['icon'] as int),
+                          color: Color(int.parse("0x" +
+                              categoryData['color'].replaceAll("#", ""))),
                         ),
                       ),
                       title: Text(

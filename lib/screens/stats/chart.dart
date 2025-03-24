@@ -52,13 +52,9 @@ class _MyChartState extends State<MyChart> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      IconData(
-                        category['icon'] as int, // Convert back to IconData
-                        fontFamily: 'MaterialIcons',
-                      ),
+                      controller.getIconForCode(category['icon'] as int),
                       color: Color(int.parse(
                           "0x" + category['color'].replaceAll("#", ""))),
-                      size: 16,
                     ),
                     const SizedBox(width: 4),
                     Text(category['name'],
@@ -187,25 +183,25 @@ class _MyChartState extends State<MyChart> {
     if (value.toInt() >= categories.length) return Container();
 
     String category = categories[value.toInt()];
-    IconData icon = _getCategoryIcon(category);
+    Icon icon = _getCategoryIcon(category);
     Color color = _getCategoryColor(category);
 
     return Padding(
       padding: const EdgeInsets.only(top: 5.0),
-      child: Icon(icon,
+      child: Icon(icon as IconData?,
           color: color, size: 20), // 🔹 Icon now has a category color
     );
   }
 
-  IconData _getCategoryIcon(String category) {
+  Icon _getCategoryIcon(String category) {
     final categoryData = controller.expenseCategories.firstWhere(
       (element) => element['name'] == category,
       orElse: () => {'icon': CupertinoIcons.question_circle_fill},
     );
-    return IconData(
-      categoryData['icon'] as int, // Convert back to IconData
-      fontFamily: 'MaterialIcons',
-    );
+    return Icon(
+  controller.getIconForCode(categoryData['icon'] as int),
+  color: Color(int.parse("0x" + categoryData['color'].replaceAll("#", ""))),
+);
   }
 
   Widget leftTitles(double value, TitleMeta meta) {

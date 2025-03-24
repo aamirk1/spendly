@@ -9,8 +9,7 @@ import 'package:spendly/res/routes/routes_name.dart';
 
 class OnboardingScreen extends StatelessWidget {
   final OnboardingController controller = Get.put(OnboardingController());
-
-  final MyUser myUser = Get.arguments as MyUser; // ✅ Retrieve user object
+  final MyUser myUser = Get.arguments;
   final List<Map<String, String>> onboardingData = [
     {
       'animation': 'assets/animations/finance1.json',
@@ -76,7 +75,8 @@ class OnboardingScreen extends StatelessWidget {
           ),
           SizedBox(height: 20),
           Obx(() => ElevatedButton(
-                onPressed: () => controller.nextPage(myUser),
+                onPressed: () =>
+                    controller.nextPage(myUser), // Remove the ! operator
                 child: Text(
                     controller.currentIndex.value == onboardingData.length - 1
                         ? 'Get Started'

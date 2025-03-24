@@ -25,7 +25,8 @@ android {
         applicationId = "com.example.spendly"
         minSdk = 23
         targetSdk = 35  // Explicitly set to 35
-        versionCode = flutter.versionCode
+        // versionCode = flutter.versionCode
+        versionCode = 2
         versionName = flutter.versionName
     }
 

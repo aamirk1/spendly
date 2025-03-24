@@ -49,12 +49,10 @@ class ViewAllExpense extends StatelessWidget {
                     ),
                   ),
                   child: Icon(
-                    IconData(
-                      categoryData['icon'] as int, // Convert back to IconData
-                      fontFamily: 'MaterialIcons',
-                    ), // Category icon
-                    color: Colors.white,
-                    size: 24,
+                    expenseController
+                        .getIconForCode(categoryData['icon'] as int),
+                    color: Color(int.parse(
+                        "0x" + categoryData['color'].replaceAll("#", ""))),
                   ),
                 ),
                 title: Text('₹$amount',
